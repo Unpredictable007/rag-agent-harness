@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+data/posthog_raw/
+data/lancedb/
+data/pinned_commit.txt
+runs/
+.idea/
+.vscode/
+*.iml
