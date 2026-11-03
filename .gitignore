@@ -5,7 +5,8 @@ __pycache__/
 .DS_Store
 data/posthog_raw/
 data/lancedb/
-data/pinned_commit.txt
+data/bm25_index.pkl
+*.pkl
 runs/
 .idea/
 .vscode/
