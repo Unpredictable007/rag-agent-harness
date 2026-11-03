@@ -10,6 +10,9 @@ DATA_DIR = REPO_ROOT / "data"
 RAW_DOCS_DIR = DATA_DIR / "posthog_raw" / "contents" / "docs"
 LANCEDB_DIR = DATA_DIR / "lancedb"
 BM25_INDEX_PATH = DATA_DIR / "bm25_index.pkl"
+RUNS_DIR = REPO_ROOT / "runs"
+TRACES_DIR = RUNS_DIR / "traces"
+RETRIEVAL_TRACES_PATH = TRACES_DIR / "retrieval_traces.jsonl"
 
 # Chunking parameters
 CHUNK_MIN_TOKENS = 100
