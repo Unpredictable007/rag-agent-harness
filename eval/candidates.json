@@ -1,0 +1,652 @@
+{
+  "items": [
+    {
+      "id": "cand-001",
+      "question": "My calendar heatmap cells don't line up with my local time. Which timezone does the heatmap use, and how do I change it?",
+      "reference_answer": "By default, the calendar heatmap displays times in UTC. The displayed time for each cell and the starting day of the week are based on your project's date and time settings, so you can change the timezone in your project settings (under the date and time section).",
+      "gold_urls": [
+        "https://posthog.com/docs/product-analytics/trends/charts"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: product-analytics/trends/charts.mdx#17 | Title: Calendar heatmap | Headings: Charts > Total value > Calendar heatmap"
+    },
+    {
+      "id": "cand-002",
+      "question": "If I remove an insight from one of my dashboards, does it get deleted from PostHog entirely? I want to clean up without accidentally losing it.",
+      "reference_answer": "No. Removing an insight only removes it from the current dashboard. The insight still exists in PostHog and on any other dashboards where it appears. To delete it permanently, use the 'Delete insight everywhere' option in the toast notification, which removes it from PostHog and every dashboard it appears on. That option opens a confirmation dialog listing other dashboards that use the insight, and deletion can be undone after confirming. 'Delete insight everywhere' only appears if you have editor access; users with view access can remove the insight from the dashboard but won't see the delete option.",
+      "gold_urls": [
+        "https://posthog.com/docs/product-analytics/dashboards"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: product-analytics/dashboards.mdx#20 | Title: Removing and deleting insights | Headings: Dashboards > Dashboard options > Removing and deleting insights"
+    },
+    {
+      "id": "cand-003",
+      "question": "PostHog AI keeps giving me the wrong results when I ask about signups. What should I change in how I phrase my requests?",
+      "reference_answer": "The guidance includes several changes: name your events explicitly (e.g., 'Show me `user_signed_up` events' works better than 'show me signups' if PostHog AI can't match the event name); specify time ranges such as 'in the last 30 days' or 'this week'; describe the visualization you want, such as 'as a funnel' or 'broken down by browser'; iterate with follow-ups to adjust filters, add breakdowns, or change the chart type after the initial insight is created; and ask questions rather than just giving commands, such as 'What changed this week?' or 'Why did signups drop?', which prompt PostHog AI to investigate and explain rather than only build a chart.",
+      "gold_urls": [
+        "https://posthog.com/docs/product-analytics/analyze-data-ai"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: product-analytics/analyze-data-ai.mdx#4 | Title: Tips for better results | Headings: Analyze data with PostHog AI > Tips for better results"
+    },
+    {
+      "id": "cand-004",
+      "question": "I need to clean up a lot of old dashboards through the MCP. Is there a single call that removes several at once, and is there a limit?",
+      "reference_answer": "Yes. The `dashboards-bulk-delete` tool deletes up to 100 dashboards in one request.",
+      "gold_urls": [
+        "https://posthog.com/docs/product-analytics/surfaces/mcp"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: product-analytics/surfaces/mcp.mdx#5 | Title: Dashboard tools | Headings: Use product analytics over PostHog MCP > Dashboard tools"
+    },
+    {
+      "id": "cand-005",
+      "question": "When I call evaluateFlags in the Node SDK, what does the onlyEvaluateLocally option do, and what is its default value?",
+      "reference_answer": "The onlyEvaluateLocally option controls whether PostHog makes a server request when it can't evaluate a flag locally. It defaults to false. Setting it to true means PostHog will not make a server request if it can't evaluate the flag locally.",
+      "gold_urls": [
+        "https://posthog.com/docs/feature-flags/local-evaluation"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: feature-flags/local-evaluation/index.mdx#7 | Title: Cold start and fallback defaults | Headings: Server-side local evaluation > Step 3: Evaluate your feature flag > Cold start and fallback defaults"
+    },
+    {
+      "id": "cand-006",
+      "question": "We need to rotate our feature flags secure API key without breaking production. How do we do that, and when can we delete the old key?",
+      "reference_answer": "Key rotation generates new keys while keeping the old one temporarily active. During the transition, the primary and backup keys are both maintained, which allows a rotation without downtime. Once all your systems use the new key, you delete the backup key. These keys are managed in Settings > Feature flags.",
+      "gold_urls": [
+        "https://posthog.com/docs/feature-flags/project-wide-settings"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: feature-flags/project-wide-settings.mdx#8 | Title: Key management | Headings: Project-wide settings > Feature flags secure API key > Key management"
+    },
+    {
+      "id": "cand-007",
+      "question": "My feature flag returned a value I didn't expect for one of my users. Is the flag misbehaving, or should I be looking somewhere else?",
+      "reference_answer": "The flag itself is usually fine. Evaluating the same flag with the same distinct ID always returns the same result because the hash is deterministic. When a flag returns an unexpected value, the problem is almost always in the inputs passed to the flag, such as the identity, the properties, or the flag definition. You should find what changed in those inputs.",
+      "gold_urls": [
+        "https://posthog.com/docs/feature-flags/best-practices"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: feature-flags/best-practices.mdx#5 | Title: Unexpected results are almost always input problems | Headings: Best practices for production-ready flags > Unexpected results are almost always input problems"
+    },
+    {
+      "id": "cand-008",
+      "question": "I'm using OpenFeature with the Node.js server SDK. How do I set up PostHog and evaluate a boolean flag, and do I need to clean anything up when my app stops?",
+      "reference_answer": "Create a PostHog client from 'posthog-node' with your project API key and host. Register it by calling await OpenFeature.setProviderAndWait(new PostHogServerProvider(posthog)), where PostHogServerProvider comes from '@posthog/openfeature-node-provider'. Get a client with OpenFeature.getClient(), then evaluate the flag with await client.getBooleanValue('my-flag', false, { targetingKey: 'user_distinct_id' }). The targetingKey supplies the distinct ID, and resolution returns a promise. You own the PostHog client lifecycle, so call posthog.shutdown() when your app exits. The chunk also shows a commented-out personalApiKey option that enables local evaluation.",
+      "gold_urls": [
+        "https://posthog.com/docs/feature-flags/installation/openfeature-js"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: feature-flags/installation/openfeature-js.mdx#3 | Title: Usage | Headings: OpenFeature (JavaScript) > Server (Node.js) > Usage"
+    },
+    {
+      "id": "cand-009",
+      "question": "Before I launch an A/B test, what should I check about exposure events, and when should the exposure event fire?",
+      "reference_answer": "Before launching, confirm that exposure events are being sent correctly for all variants. Place the exposure event at the moment users actually encounter the experimental change, not just when they load a page or app. Monitor exposure balance to check that users are distributed across variants according to your configured percentages, since significant imbalances may indicate implementation issues. If you use custom exposure events, document what triggers them and any required properties.",
+      "gold_urls": [
+        "https://posthog.com/docs/experiments/exposures"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: experiments/exposures.mdx#16 | Title: Best practices | Headings: Exposures > Best practices"
+    },
+    {
+      "id": "cand-010",
+      "question": "Before I run an experiment that joins my Data Warehouse tables to PostHog events, how can I check that my join keys will actually match?",
+      "reference_answer": "Use Data Management to verify that your events have the properties you're joining on, and query your Data Warehouse to confirm that matching values exist.",
+      "gold_urls": [
+        "https://posthog.com/docs/experiments/data-warehouse"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: experiments/data-warehouse.mdx#15 | Title: Best practices | Headings: Using Data Warehouse tables in Experiments > Best practices"
+    },
+    {
+      "id": "cand-011",
+      "question": "Which statistical test does PostHog use for frequentist experiment results, and how is the p-value calculated?",
+      "reference_answer": "PostHog uses Welch's t-test, a two-sided test that handles unequal variances between groups. The null hypothesis (H\u2080) is that there is no difference (effect_size = 0). The p-value is calculated as 2 \u00d7 (1 \u2212 t_cdf(|t_statistic|, degrees_of_freedom)), using the cumulative distribution function of the t-distribution, with degrees of freedom from the Welch-Satterthwaite approximation.",
+      "gold_urls": [
+        "https://posthog.com/docs/experiments/statistics-frequentist"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: experiments/statistics-frequentist.mdx#11 | Title: Step 4: Statistical hypothesis testing | Headings: Frequentist statistics > What the experimentation pipeline does > Step 4: Statistical hypothesis testing"
+    },
+    {
+      "id": "cand-012",
+      "question": "I only want to record a percentage of the sessions in a trigger group, and I want to ignore very short sessions. How can I do that?",
+      "reference_answer": "Use two controls on the trigger group. For the percentage, set the group's sampling sample rate (for example, 0.1 for 10% or 0.2 for 20%). PostHog applies it to the sessions that match that group's conditions. Selection is deterministic, based on a hash of the session ID, so you can't choose which specific sessions are sampled. To ignore very short sessions, set a minimum duration in your replay ingestion settings (for example, 2 seconds). Each trigger group has its own minimum duration. Sampling requires posthog-js 1.85.0+ on web, and minimum duration requires posthog-js 1.291.0+ on web. Mobile SDKs have their own minimum versions.",
+      "gold_urls": [
+        "https://posthog.com/docs/session-replay/how-to-control-which-sessions-you-record"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: session-replay/how-to-control-which-sessions-you-record.mdx#2 | Title: Controls available | Headings: How to control which sessions you record > Trigger groups > Controls available"
+    },
+    {
+      "id": "cand-013",
+      "question": "Can I search session replays and manage playlists from my AI coding editor without opening the PostHog web app?",
+      "reference_answer": "Yes. The PostHog MCP surface lets you search sessions and manage playlists from any MCP client or AI editor.",
+      "gold_urls": [
+        "https://posthog.com/docs/session-replay"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: session-replay/index.mdx#1 | Title: Where you can use it | Headings: Session Replay > Where you can use it"
+    },
+    {
+      "id": "cand-014",
+      "question": "A self-driving report flagged a pattern in my product. What can I do with it, and does PostHog change anything automatically?",
+      "reference_answer": "You can read the report to see the pattern, how many users and sessions hit it, when it started, and the replays that prove it. Each report links example recordings you can watch, ask questions in a discussion with an agent, and follow in the report's activity log. You can then fix the capture config, redesign the step, hand it to an agent, or dismiss the report. Nothing happens until you decide.",
+      "gold_urls": [
+        "https://posthog.com/docs/session-replay/surfaces/web-app"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: session-replay/surfaces/web-app.mdx#6 | Title: What you can do with a report | Headings: Session replay in PostHog Web > Self-driving reports > What you can do with a report"
+    },
+    {
+      "id": "cand-015",
+      "question": "Which built-in collection would show me sessions with multiple rage clicks or exceptions, and what time window does it cover?",
+      "reference_answer": "The Frustration signals collection shows sessions with significant frustration signals (multiple rage clicks or exceptions) in the last 7 days.",
+      "gold_urls": [
+        "https://posthog.com/docs/session-replay/how-to-watch-recordings"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: session-replay/how-to-watch-recordings.mdx#10 | Title: Built-in collections | Headings: How to watch recordings > Built-in collections"
+    },
+    {
+      "id": "cand-016",
+      "question": "I want my insight to count only real people and leave out bots. What filter do I add, and is there a way to exclude only automation tools but keep AI agents?",
+      "reference_answer": "Add a filter where Is bot equals false. Your visitor, session, and pageview counts will then reflect human traffic only, without changing the stored data. To exclude a narrower set, such as only automation and HTTP clients while keeping AI agents, filter on Traffic type or Traffic category instead.",
+      "gold_urls": [
+        "https://posthog.com/docs/web-analytics/managing-bot-traffic"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: web-analytics/managing-bot-traffic.mdx#4 | Title: Exclude bots from an insight or dashboard | Headings: Managing bot and AI traffic > Exclude bots from an insight or dashboard"
+    },
+    {
+      "id": "cand-017",
+      "question": "My campaign attribution still looks wrong after I've checked my setup. When should I open a support ticket, and what details should I include?",
+      "reference_answer": "Raise a support ticket if UTMs are present on pageviews, distinct_id changes unexpectedly, identity stitching appears broken despite correct persistence config, in-app browser flows consistently fragment identity, or subdomain configuration is correct but still failing. Include example distinct_id(s) and person_id(s), the user agent, the campaign name, your persistence config, and your domain structure. The ticket can be raised at https://app.posthog.com/home#supportModal.",
+      "gold_urls": [
+        "https://posthog.com/docs/web-analytics/campaign-attribution-troubleshooting"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: web-analytics/campaign-attribution-troubleshooting.mdx#13 | Title: When should I raise a support ticket? | Headings: Campaign attribution troubleshooting > When should I raise a support ticket?"
+    },
+    {
+      "id": "cand-018",
+      "question": "What does the Marketing Analytics onboarding wizard cover when I first open the dashboard, and can I skip any part of it?",
+      "reference_answer": "The wizard has three steps: Welcome (an introduction to Marketing Analytics and its capabilities), Add source (connect marketing data sources via native integrations, the Data Warehouse, or self-managed sources), and Conversion goals (optional, to define which actions count as conversions). You can skip the conversion goals step and configure them later in settings at https://app.posthog.com/settings/environment-marketing-analytics. After onboarding is complete, you see the full marketing dashboard with your campaign data.",
+      "gold_urls": [
+        "https://posthog.com/docs/web-analytics/marketing-analytics"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: web-analytics/marketing-analytics.mdx#1 | Title: Getting started | Headings: Marketing Analytics > Getting started"
+    },
+    {
+      "id": "cand-019",
+      "question": "I'm creating a SQL query batch export through the API. How do I make it use my project's timezone for timestamps instead of UTC?",
+      "reference_answer": "Set `hogql_modifiers` to `{\"convertToProjectTimezone\": true}` on the export. Timestamps default to UTC unless the project sets the `convertToProjectTimezone` modifier. Setting it to `false` keeps UTC for that export.",
+      "gold_urls": [
+        "https://posthog.com/docs/data-pipelines/batch-exports"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: data-pipelines/batch-exports/index.mdx#10 | Title: SQL query model | Headings: Batch exports > Models > SQL query model"
+    },
+    {
+      "id": "cand-020",
+      "question": "Which CleverTap profiles column would show me how many times each event has occurred for a user, along with when it first and last happened?",
+      "reference_answer": "The `events` column. It shows lifetime event counts and the first and last occurrence times for each event.",
+      "gold_urls": [
+        "https://posthog.com/docs/data-pipelines/sources/clevertap"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: data-pipelines/sources/clevertap.md#6 | Title: Profiles columns | Headings: Linking CleverTap as a source > Available tables > Profiles columns"
+    },
+    {
+      "id": "cand-021",
+      "question": "Which Cisco Meraki tables sync incrementally, and which ones do a full refresh on every sync?",
+      "reference_answer": "Only `network_events` is incremental, syncing only new data since the last sync. The other six tables (`networks`, `devices`, `inventory_devices`, `uplink_statuses`, `assurance_alerts`, and `network_clients`) use full refresh, which reloads all data on each sync.",
+      "gold_urls": [
+        "https://posthog.com/docs/data-pipelines/sources/cisco-meraki"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: data-pipelines/sources/cisco-meraki.md#4 | Title: Available tables | Headings: Linking Cisco Meraki as a source > Available tables"
+    },
+    {
+      "id": "cand-022",
+      "question": "I'm connecting Mintlify as a data source in PostHog. Which of its tables sync incrementally, and what field do they use to track new or updated records?",
+      "reference_answer": "Only the assistant_conversations table syncs incrementally. It uses the timestamp field as a cursor, so each run syncs only new or updated records. The feedback, searches, views, and visitors tables use full refresh, which reloads all data on each sync. Feedback uses full refresh because its status can change without a modification timestamp. Searches, views, and visitors use full refresh because they contain aggregates rather than individual events.",
+      "gold_urls": [
+        "https://posthog.com/docs/data-pipelines/sources/mintlify"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: data-pipelines/sources/mintlify.md#3 | Title: Available tables | Headings: Linking Mintlify as a source > Available tables"
+    },
+    {
+      "id": "cand-023",
+      "question": "I'm building a SQL insight that groups events by time period. How can I make the time grouping follow the dashboard's interval setting, and what happens if I don't pass an argument to the placeholder?",
+      "reference_answer": "Use the placeholder {filters.interval('week')} wherever the time unit goes, such as the first argument to dateTrunc. At runtime it is replaced with the dashboard's interval as a string constant, such as 'week'. The argument you pass sets the default used when the dashboard doesn't set an interval. If you omit the argument, the default is 'day'. Valid intervals are second, minute, hour, day, week, month, quarter, and year.",
+      "gold_urls": [
+        "https://posthog.com/docs/data-warehouse/sql/variables"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: data-warehouse/sql/variables.mdx#5 | Title: Applying the dashboard interval | Headings: SQL variables > Applying dashboard filters > Applying the dashboard interval"
+    },
+    {
+      "id": "cand-024",
+      "question": "My data quality check on the events table keeps timing out. What should I do first, and does an errored check count as a failing assertion?",
+      "reference_answer": "First, open the run's error details before you change the assertion. Common causes include invalid HogQL, a renamed column, a missing table, changed permissions, an unsupported metric definition, or a query timeout. For large events, persons, or groups checks, turn on \"Only check recent rows\"; events filters on timestamp, while persons and groups filter on created_at. Use the smallest window that still tests the data your decision depends on. An errored check does not count as a failing assertion. If the materialization gate is on, query errors and audit failures don't guarantee a block.",
+      "gold_urls": [
+        "https://posthog.com/docs/data-warehouse/data-quality/troubleshooting"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: data-warehouse/data-quality/troubleshooting.mdx#6 | Title: Fix query errors and timeouts | Headings: Data quality results and troubleshooting > Fix query errors and timeouts"
+    },
+    {
+      "id": "cand-025",
+      "question": "My materialized view in the data warehouse stopped refreshing and I found the bug in its SQL. Do I need to open a pull request in my repo to fix it?",
+      "reference_answer": "No. A view's definition is stored in PostHog, not in your repository, so a fix to the view's SQL doesn't come as a pull request. Instead, apply the corrected query to the view in the PostHog web app. The check clears once a materialization succeeds.",
+      "gold_urls": [
+        "https://posthog.com/docs/data-warehouse/surfaces/web-app"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: data-warehouse/surfaces/web-app.mdx#3 | Title: Self-driving reports | Headings: The data warehouse in PostHog Web > Self-driving reports"
+    },
+    {
+      "id": "cand-026",
+      "question": "Which build tools does the Node.js source map setup guide cover, and how can I check that source maps are being served correctly in production?",
+      "reference_answer": "The guide covers Vite, webpack, and Rollup, each linked to its source map configuration documentation. For other build tools, you're told to consult their own documentation. To verify, confirm in dev tools that the served files in production are injected with the correct source map comment, such as `//# chunkId=...`.",
+      "gold_urls": [
+        "https://posthog.com/docs/error-tracking/upload-source-maps/node"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: error-tracking/upload-source-maps/node.mdx#0 | Title: Manual setup | Headings: Upload source maps for Node.js > Manual setup"
+    },
+    {
+      "id": "cand-027",
+      "question": "How do I turn off automatic exception capture in the Roblox SDK, and what's the default setting?",
+      "reference_answer": "Pass `captureErrors = false` in the `PostHog:Init` call, for example `PostHog:Init({ projectToken = \"<ph_project_token>\", captureErrors = false })`. The `captureErrors` option is a boolean that defaults to `true`, which enables automatic exception capture.",
+      "gold_urls": [
+        "https://posthog.com/docs/error-tracking/installation/roblox"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: error-tracking/installation/roblox.mdx#1 | Title: Roblox Error Tracking installation | Headings: Roblox Error Tracking installation"
+    },
+    {
+      "id": "cand-028",
+      "question": "I'm building a Unity game and don't want the SDK sending every crash automatically. How do I turn off automatic exception capture when I call PostHog.Setup?",
+      "reference_answer": "Pass `CaptureExceptions = false` in the `PostHogConfig` object given to `PostHog.Setup(...)`, along with your `ApiKey`. Automatic exception capture is enabled by default (`CaptureExceptions` defaults to `true`). Handled exceptions can still be reported manually with `PostHog.CaptureException(...)`.",
+      "gold_urls": [
+        "https://posthog.com/docs/error-tracking/installation/unity"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: error-tracking/installation/unity.mdx#1 | Title: Unity Error Tracking installation | Headings: Unity Error Tracking installation"
+    },
+    {
+      "id": "cand-029",
+      "question": "In our Java backend, how do I find out which variant a specific user is in for an experiment, and fall back to a default when the flag value isn't a string?",
+      "reference_answer": "Call `posthog.evaluateFlags(\"user_distinct_id\")` to get a `PostHogFeatureFlagEvaluations` object, then call `flags.getFlag(\"recommendation_algorithm\")` to get the flag value. If the value is a `String`, cast it to `String`; otherwise, use `\"control\"` as the variant. The example then branches on `\"neural_network\"`. The docs note that experiments use feature flags, so this code is very similar to feature flag code. Running experiments without feature flags is covered separately.",
+      "gold_urls": [
+        "https://posthog.com/docs/libraries/java"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: libraries/java/index.mdx#15 | Title: Experiments (A/B tests) | Headings: Java > Experiments (A/B tests)"
+    },
+    {
+      "id": "cand-030",
+      "question": "Our Android app's primary distinct ID isn't available in our backend, so we need to tie a second ID to the same user. How do I do that with the Android SDK?",
+      "reference_answer": "Call `PostHog.alias(\"distinct_id\")` in Kotlin. This creates an alias that assigns another distinct ID to the current user. It is useful when the primary distinct ID is inaccessible, for example when a distinct ID used on the frontend isn't available in your backend. The docs recommend reading the alias section of the identify documentation to use the method correctly.",
+      "gold_urls": [
+        "https://posthog.com/docs/libraries/android"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: libraries/android/index.mdx#6 | Title: Alias | Headings: Android > Alias"
+    },
+    {
+      "id": "cand-031",
+      "question": "My frontend uses one distinct ID for a user, but that ID isn't available in my PHP backend. How can I make sure backend events are tied to the same user in PostHog?",
+      "reference_answer": "Use the alias method in the PHP library: call PostHog::alias() with 'distinctId' set to the existing distinct ID and 'alias' set to the additional ID. This assigns another distinct ID to the same user, which is helpful when your primary distinct ID is inaccessible, such as a frontend distinct ID that isn't available in your backend.",
+      "gold_urls": [
+        "https://posthog.com/docs/libraries/php"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: libraries/php/index.mdx#5 | Title: Alias | Headings: PHP > Alias"
+    },
+    {
+      "id": "cand-032",
+      "question": "When I call analytics.group() in Segment, the company shows up under a segment_group type in PostHog. How can I associate events with a company group type instead, and do I need to set it on every event?",
+      "reference_answer": "Pass a $groups object directly on the track call, for example analytics.track(\"user_signed_up\", { $groups: { company: \"Twitter\" } }). You can combine multiple group types in one call, such as { company: \"Twitter\", project: \"website-redesign\" }. Unlike posthog.group() in PostHog's JavaScript library, Segment doesn't carry group state between calls, so you must include $groups on every track, page, or other call you want associated with that group.",
+      "gold_urls": [
+        "https://posthog.com/docs/libraries/segment"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: libraries/segment.md#9 | Title: Using group analytics | Headings: Segment > Sending events to PostHog > Using group analytics"
+    },
+    {
+      "id": "cand-033",
+      "question": "What should I send with a 'Coupon Entered' event, and when should it fire?",
+      "reference_answer": "Fire the Coupon Entered event when a coupon is entered on a cart or order. It has three properties: order_id (String, the order or transaction ID, if applicable), cart_id (String, the cart ID, if applicable), and coupon_id (String, the coupon ID). For example, posthog.capture('Coupon Entered', { order_id: 'a239ebb8404c4ac29950756f', cart_id: 'cb271d41bc2140ea8d076c50', coupon_id: 'blackfriday_2025' }).",
+      "gold_urls": [
+        "https://posthog.com/docs/data/event-spec/ecommerce-events"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: data/event-spec/ecommerce-events.mdx#45 | Title: Coupon Entered | Headings: Ecommerce events specification > Coupons > Coupon Entered"
+    },
+    {
+      "id": "cand-034",
+      "question": "I'm seeing ingestion warnings in my PostHog project. Does that mean the affected events were thrown away, and can I use the count shown to tell how often this is happening?",
+      "reference_answer": "Not necessarily. Where possible, PostHog still ingests the event and logs an ingestion warning. Other problems leave nothing to ingest, and the warning is then the only record. The warnings are sampled, so the number of affected events may exceed the total displayed. The count should be used to confirm that something is happening, not to measure how often it happens. An example of an event that is not ingested is one captured with a generic ID such as null.",
+      "gold_urls": [
+        "https://posthog.com/docs/data/ingestion-warnings"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: data/ingestion-warnings.mdx#0 | Title: Ingestion warnings | Headings: Ingestion warnings"
+    },
+    {
+      "id": "cand-035",
+      "question": "What exactly are UTM parameters, and what does a tagged URL look like?",
+      "reference_answer": "UTM parameters are a set of five parameters that let you track the effectiveness of marketing campaigns across traffic sources. They were first introduced by Google Analytics and are now a common way to identify where website traffic comes from. They are appended to a URL as query parameters, for example: https://www.example.com/page?utm_source=twitter&utm_medium=social&utm_campaign=twitter-campaign. Nearly every ad platform sets them when sending traffic to your website, and you can also set them yourself.",
+      "gold_urls": [
+        "https://posthog.com/docs/data/utm-segmentation"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: data/utm-segmentation.mdx#0 | Title: UTM segmentation | Headings: UTM segmentation"
+    },
+    {
+      "id": "cand-036",
+      "question": "I'm building embedded analytics and want a separate project for each customer. How do I create those projects, how do I query a customer's data afterward, and how many projects can a free organization have?",
+      "reference_answer": "You create a project when you add a customer by calling the projects API. Each project has its own project token for event ingestion. To query a customer's data, you use that project's ID when calling Endpoints or the Query API. Free organizations are limited to one project, while the Boost plan includes unlimited projects. Note that analyzing data across all customers is harder with this setup, because PostHog queries are scoped to one project, so you would need to query each project separately and combine the results.",
+      "gold_urls": [
+        "https://posthog.com/docs/data/embedded-analytics-projects"
+      ],
+      "type": "single-chunk",
+      "answerable": true,
+      "notes": "Source: data/embedded-analytics-projects.mdx#5 | Title: Create projects with the API | Headings: Project setup for embedded analytics > Option 2: Create a project for each customer > Create projects with the API"
+    },
+    {
+      "id": "cand-037",
+      "question": "Our team is shipping a risky new checkout flow. We want to first expose it to a small subset of users, watch error rates and usage metrics, and widen the rollout only once we're satisfied. We also want beta testers to opt themselves in and out. Can we use early access feature management for both goals if our rollout targets company-level Groups and the feature is gated in our Python backend?",
+      "reference_answer": "Not for this combination. Early access feature management is only available in the JavaScript Web SDK and does not support Groups, so it can't handle group-level targeting or gate a feature in a Python backend. The staged-exposure goal is a canary release: a new feature goes to a subset of users before a larger group, developers watch for issues and analyze usage metrics, and then the feature rolls out to a larger group or everyone. That process has to be run through a different rollout approach for company-level targeting. The beta opt-in goal matches early access management's purpose, which lets users opt in and out at different development stages through beta programs and waitlists. That works only for individual users in the JavaScript Web SDK, so it covers the user-controlled beta piece for web front-end users at most.",
+      "gold_urls": [
+        "https://posthog.com/docs/feature-flags/early-access-feature-management",
+        "https://posthog.com/docs/feature-flags/canary-release"
+      ],
+      "type": "multi-chunk",
+      "answerable": true,
+      "notes": "Synthesized from:\n  - Chunk 1: feature-flags/early-access-feature-management.mdx#0 (https://posthog.com/docs/feature-flags/early-access-feature-management)\n  - Chunk 2: feature-flags/canary-release.md#1 (https://posthog.com/docs/feature-flags/canary-release)\nRationale: Chunk 1 supplies the constraints (JavaScript Web SDK only, no Groups support) and the purpose of early access management (user opt-in across development stages, beta programs, waitlists). Chunk 2 defines canary release as a staged subset-then-wider rollout with monitoring of issues and usage metrics. Answering requires checking the canary rollout pattern against the early access constraints. Chunk 1 alone does not explain what a canary release is or why staged exposure matters, and Chunk 2 alone says nothing about SDK or Group restrictions. Only the combination shows that early access can cover opt-in betas for web users but cannot serve as the group-targeted, Python-backed canary mechanism."
+    },
+    {
+      "id": "cand-038",
+      "question": "Our team is about to launch a checkout experiment. Before we go live, I want to confirm that my colleagues and I actually see the test variant when we visit the site, including when we're logged out. I also need to know how long the experiment has to run to get reliable results. What steps should I take for each of these, and what inputs determine the running time?",
+      "reference_answer": "To verify variants before launch, add an optional override to your experiment's feature flag rather than relying only on the code. Open the flag, make sure the 'Enable feature flag' box is checked, and add a new condition set with the condition email = your_email@domain.com (your own or a teammate's address) at a 100% rollout. Because email isn't available for logged-out users, use a parameter such as utm_source and append ?utm_source=your_variant_name to the URL. Then set the optional override to the variant you want those users to see, click Save, and confirm each variant behaves as expected. Only launch once this checks out, since a bug found after launch means the results can no longer be trusted and days of effort are lost. For running time, use the running time calculator before running the experiment. It estimates how long the experiment needs to run based on your traffic and the size of the effect you want to detect. Lower traffic or a smaller effect to detect generally means a longer run.",
+      "gold_urls": [
+        "https://posthog.com/docs/experiments/testing-and-launching",
+        "https://posthog.com/docs/experiments/sample-size-running-time"
+      ],
+      "type": "multi-chunk",
+      "answerable": true,
+      "notes": "Synthesized from:\n  - Chunk 1: experiments/testing-and-launching.mdx#0 (https://posthog.com/docs/experiments/testing-and-launching)\n  - Chunk 2: experiments/sample-size-running-time.mdx#0 (https://posthog.com/docs/experiments/sample-size-running-time)\nRationale: Chunk 1 supplies the pre-launch verification procedure: the email-based override condition at 100% rollout, the utm_source fallback for logged-out users, the optional variant override, saving, and the rule to launch only after testing. It does not explain how long the experiment should run. Chunk 2 supplies the running-time calculator and its inputs (traffic and target effect size) but says nothing about testing or overrides. The question combines both pre-launch steps, so a complete answer needs the QA workflow from Chunk 1 and the duration estimation from Chunk 2. The statement that smaller effects and lower traffic lengthen runs is general statistical reasoning, not stated explicitly in either chunk. Chunk 2's image references carry no usable text, so the answer relies only on its prose."
+    },
+    {
+      "id": "cand-039",
+      "question": "Our app renders a WebGL-based data visualization that we want to see in session replays so we can debug user issues. Before we turn that on, what do we need to verify about our PostHog JS SDK version and our PII exposure, and how should we think about keeping our Session Replay bill under control?",
+      "reference_answer": "For canvas capture, you need PostHog JS SDK v1.105.7 or later. Canvas support was added in that version, and canvas capture won't work on older versions. PostHog can capture WebGL canvases (as well as 2D), but canvas content is not covered by DOM-based masking, so PostHog doesn't capture canvas elements automatically. Before enabling it, confirm the canvas is free of PII, or set up canvas masking. Then enable canvas recording globally in your project's replay settings. Canvas elements are recorded at 4 frames per second, so playback may look less smooth than normal replay.\n\nFor cost, Session Replay is free up to a monthly allowance of web and mobile recordings, then billed per recording with volume discounts. There are no per-seat charges. You can set a billing limit so a traffic spike can't cause a surprise bill. Recording rules and data retention are the two biggest levers on your bill, so you can tune them to control spend. The docs don't say that canvas recording changes pricing, so the cost controls come from the general billing model.",
+      "gold_urls": [
+        "https://posthog.com/docs/session-replay/start-here",
+        "https://posthog.com/docs/session-replay/canvas-recording"
+      ],
+      "type": "multi-chunk",
+      "answerable": true,
+      "notes": "Synthesized from:\n  - Chunk 1: session-replay/start-here.mdx#2 (https://posthog.com/docs/session-replay/start-here)\n  - Chunk 2: session-replay/canvas-recording.mdx#0 (https://posthog.com/docs/session-replay/canvas-recording)\nRationale: Chunk 2 alone covers the canvas requirements: the SDK version floor (v1.105.7), the fact that canvas isn't covered by DOM masking so it must be verified PII-free or masked before enabling, where to enable it (replay settings), and the 4 fps recording rate. It says nothing about pricing or billing controls. Chunk 1 alone covers the billing model: the free monthly allowance, per-recording pricing with volume discounts, no per-seat charges, the billing limit, and recording rules and data retention as the main cost levers. It says nothing about canvas. A complete answer to the question requires both: the developer has to combine the canvas enablement prerequisites from Chunk 2 with the cost-management guidance from Chunk 1. The answer also notes that the docs don't link canvas recording to pricing, which avoids inventing a cost relationship the sources don't state."
+    },
+    {
+      "id": "cand-040",
+      "question": "Our team ships an Android app and wants a User Paths report showing how users move between screens. Will navigation data be captured by default without custom instrumentation, and how should we read the bars and numbers in the resulting paths chart?",
+      "reference_answer": "On Android, PostHog's autocapture enables navigation, lifecycle, and deep-link autocapture by default, so screen-to-screen navigation is captured without custom instrumentation. Interaction autocapture (tap-level events) is not supported on Android, so the path steps will reflect screens rather than individual button taps. In the User Paths chart, each step is a page or screen the user viewed. The horizontal bars show a user navigating from one step to the next. The number next to each step is the count of distinct users who passed through that step, not the count of events.",
+      "gold_urls": [
+        "https://posthog.com/docs/product-analytics/autocapture",
+        "https://posthog.com/docs/product-analytics/paths"
+      ],
+      "type": "multi-chunk",
+      "answerable": true,
+      "notes": "Synthesized from:\n  - Chunk 1: product-analytics/autocapture.mdx#3 (https://posthog.com/docs/product-analytics/autocapture)\n  - Chunk 2: product-analytics/paths.mdx#2 (https://posthog.com/docs/product-analytics/paths)\nRationale: Chunk 1 is needed to establish that Android navigation autocapture is enabled by default and that interaction autocapture is unsupported on Android, which determines what data exists and what steps the paths will contain. Chunk 2 is needed to explain how paths are structured: steps are pages viewed, bars represent transitions between pages, and numbers represent distinct users at each step. Neither chunk alone answers both whether the data is available and how to interpret the chart. One caveat: neither chunk explicitly states that the autocaptured navigation events are the exact inputs to the paths feature, so the answer links them by reasonable inference."
+    },
+    {
+      "id": "cand-041",
+      "question": "Our paid campaigns tag traffic with UTM parameters, and I want to check whether visitors from one specific UTM source are converting after we set up a conversion goal. Where do I go in PostHog to look at this, which metrics will I see for that traffic compared to the previous period, and how can I investigate the sessions behind those numbers?",
+      "reference_answer": "Open Web analytics in the PostHog web app (app.posthog.com/web), which is the home base for web analytics. The overview shows visitors, pageviews, sessions, average session duration, and bounce rate, each compared with the previous period. Because a conversion goal is set up, the dashboard also shows the number of conversions and the conversion rate. To focus on the campaign, click the UTM source row. This filters the whole dashboard to that source, so the metrics, including the conversion figures, reflect only that traffic. To investigate the behavior behind any number, jump from the filtered view into the session replays behind it.",
+      "gold_urls": [
+        "https://posthog.com/docs/web-analytics/dashboard",
+        "https://posthog.com/docs/web-analytics/surfaces/web-app"
+      ],
+      "type": "multi-chunk",
+      "answerable": true,
+      "notes": "Synthesized from:\n  - Chunk 1: web-analytics/dashboard.mdx#0 (https://posthog.com/docs/web-analytics/dashboard)\n  - Chunk 2: web-analytics/surfaces/web-app.mdx#0 (https://posthog.com/docs/web-analytics/surfaces/web-app)\nRationale: Chunk 1 alone explains which metrics appear (visitors, views, sessions, trends, average session duration, bounce rate, comparison to the previous range) and that conversions and conversion rate appear once a conversion goal is added. It does not say where to find the dashboard, how to filter by UTM source, or how to reach session replays. Chunk 2 alone explains where the dashboard lives in the PostHog web app, that clicking a UTM source row filters the whole dashboard, and that session replays are linked from it. It does not mention conversions or conversion rate, or that conversion metrics depend on a conversion goal. A complete answer needs the conversion metrics from Chunk 1 and the navigation, UTM filtering, and replay drill-down from Chunk 2. The claim that the conversion figures are also filtered by UTM source is an inference from Chunk 2's phrase 'filter the whole dashboard' combined with Chunk 1's list of dashboard conversion metrics, not an explicit statement in either chunk."
+    },
+    {
+      "id": "cand-042",
+      "question": "Our onboarding survey has partial responses enabled. We want a Slack message for each response, including people who drop off partway through. We also want to know whether PostHog automatically turns the open-text comments into engineering work. What steps set up the Slack alerts, what default must we change to include partial submissions, and what happens to the open-text comments on the Self-driving side?",
+      "reference_answer": "To set up the Slack alerts, open the survey and go to the Notifications tab, then click Add notification. Choose Slack, select the channel, and customize the message template using the quick insert buttons for the survey name, respondent details, or individual question responses. Click Add notification. These notifications are automatically scoped to the current survey and by default only fire for completed submissions. Because the survey has partial responses enabled, you can turn off the 'Only notify for full responses' toggle so partial submissions also trigger alerts. For Slack, you can also add buttons that link to the survey and the respondent's person profile. For deeper customization, open the notification from the notifications list and use the full Hog function editor. On the Self-driving side, a dedicated scout clusters open-text answers into recurring themes and also watches active surveys for score regressions and abandonment spikes. Each validated theme becomes one report in the inbox, and that report goes to a human reviewer, not a coding agent. PostHog does not automatically turn comments into engineering fixes, because deciding how to respond to user sentiment is a product decision. The Slack alerts are per-response notifications, and the documentation does not say they feed into the theme clustering.",
+      "gold_urls": [
+        "https://posthog.com/docs/surveys/start-here",
+        "https://posthog.com/docs/surveys/destinations"
+      ],
+      "type": "multi-chunk",
+      "answerable": true,
+      "notes": "Synthesized from:\n  - Chunk 1: surveys/start-here.mdx#2 (https://posthog.com/docs/surveys/start-here)\n  - Chunk 2: surveys/destinations.mdx#1 (https://posthog.com/docs/surveys/destinations)\nRationale: Chunk 2 alone covers how to create a survey notification, the destination options, the default completed-only filter, the partial-response toggle, and the Hog function editor. It does not mention Self-driving, theme clustering, or human review. Chunk 1 alone covers the Self-driving scout, its monitoring of score regressions and abandonment spikes, open-text theme clustering, and the Responses to Self-driving report to Human review flow. It does not explain Slack setup, the notification defaults, or the partial-response toggle. The question needs both: the Slack setup and partial-response behavior come from Chunk 2, and the answer to the open-text question comes from Chunk 1. The reference answer also avoids claiming that the Slack notifications feed the Self-driving analysis, since neither chunk states that."
+    },
+    {
+      "id": "cand-043",
+      "question": "Our product has a React web frontend built with Vite and a separate Android app that includes NDK native code. We want readable stack traces in PostHog for both. What do we need to configure for each platform, and what should our Android release process account for so that crashes stay symbolicated?",
+      "reference_answer": "Web (React + Vite): In vite.config.js, keep the react() plugin and set `build: { sourcemap: true }`. For other bundlers such as webpack or Rollup, follow that tool's own source map docs. Then confirm in dev tools that the production files served to browsers include the `//# chunkId=...` source map comment.\n\nAndroid: In build.gradle.kts, add `posthog { uploadNativeSymbols.set(true) }`. The Gradle plugin's uploadPostHogNativeSymbols task then uploads every unstripped native library that has debug info and a build ID, automatically after assemble, install, or bundle. This covers NDK-built code and .so files from jniLibs or dependencies, for both minified and non-minified builds. Debuggable variants are skipped by default. To get source context around crash frames, also set `includeNativeSymbolSources.set(true)`. You can run ./gradlew uploadPostHogNativeSymbolsRelease explicitly for any variant, or upload a directory of .so files with posthog-cli symbol-sets upload --directory <path>.\n\nRelease process: PostHog matches native frames to symbols by the GNU build ID that the NDK emits by default. Every build has its own build ID, so symbols must be re-uploaded for each build you ship. Native crash events are captured on the next app launch, so $app_version may show the version at capture time rather than the version that crashed. If the app updated in between, identify the crashing release by build ID instead of relying on the event's version properties.",
+      "gold_urls": [
+        "https://posthog.com/docs/error-tracking/upload-source-maps/react",
+        "https://posthog.com/docs/error-tracking/upload-mappings/android"
+      ],
+      "type": "multi-chunk",
+      "answerable": true,
+      "notes": "Synthesized from:\n  - Chunk 1: error-tracking/upload-source-maps/react.mdx#0 (https://posthog.com/docs/error-tracking/upload-source-maps/react)\n  - Chunk 2: error-tracking/upload-mappings/android.mdx#1 (https://posthog.com/docs/error-tracking/upload-mappings/android)\nRationale: Chunk 1 covers only the web side: enabling source maps in a Vite config and verifying the chunkId source map comment. It says nothing about Android, Gradle, NDK, or build IDs. Chunk 2 covers only the Android side: the posthog Gradle configuration, the upload task behavior, build-ID matching, and the version-attribution caveat. It says nothing about React, Vite, or web source maps. A complete answer to the two-platform question needs the Vite configuration and verification step from Chunk 1 together with the Android upload setup and release-process guidance from Chunk 2. The answer also has to combine the two platforms' different mechanisms (source map comments for web, build-ID-matched native symbols for Android) into one coherent setup and release plan. Neither chunk alone yields the full answer."
+    },
+    {
+      "id": "cand-044",
+      "question": "We've synced our Stripe charges into PostHog and want revenue per user next to their product activity in one SQL query. The synced amount column comes through as a string, so my arithmetic on it doesn't work. How do I get this working, and where can I check the column types before writing the query?",
+      "reference_answer": "PostHog's data warehouse lets you sync sources like Stripe and query them alongside events, persons, and sessions in a single SQL query, with no separate ETL pipeline or second analytics tool. To confirm the column types and names, check the Database and Properties tabs in Data management, or the SQL tab for external sources. STRING is the default type, so a synced amount column showing as STRING is expected. Convert it before doing math, for example with toFloat(amount) (or toInt / JSONExtractInt for integer and JSON-nested values), then aggregate, such as sum(toFloat(amount)) grouped by user, and join to events on the user identifier. Once the query works, you can save it as a view or materialized view and chart it in insights.",
+      "gold_urls": [
+        "https://posthog.com/docs/data-warehouse",
+        "https://posthog.com/docs/data-warehouse/sql/data-access"
+      ],
+      "type": "multi-chunk",
+      "answerable": true,
+      "notes": "Synthesized from:\n  - Chunk 1: data-warehouse/index.mdx#0 (https://posthog.com/docs/data-warehouse)\n  - Chunk 2: data-warehouse/sql/data-access.mdx#1 (https://posthog.com/docs/data-warehouse/sql/data-access)\nRationale: Chunk 1 establishes that Stripe can be synced into the data warehouse and queried with events, persons, and sessions in one SQL query, and that views, materialized views, and insights are available for reuse. It says nothing about column data types or casting. Chunk 2 explains the type system (STRING as default, FLOAT/INTEGER/JSON, etc.), where to find column names and types for external sources in the SQL tab and Data management, and which conversion functions (toFloat, JSONExtractInt, etc.) fix the string problem. It does not mention Stripe, syncing, or the warehouse's ability to join external data with product events. Answering fully requires knowing that the Stripe data can be joined with events (Chunk 1) and how to type-cast the string column so the arithmetic works (Chunk 2)."
+    },
+    {
+      "id": "cand-045",
+      "question": "Our finance team uses Slash and our product team uses Postmark, and we want both pulled into PostHog's data pipeline. For Slash, what credentials do I need to enter if I'm using a user-scoped key instead of an organization key? And which Postmark schema should I select to investigate email delivery failures?",
+      "reference_answer": "For Slash, create a read-only API key for your legal entity in your Slash dashboard. In PostHog, go to the sources tab in the data pipeline section, click + New source, and click Link next to Slash. Enter the API key, and because you're using a user-scoped key rather than an organization key, also enter your Legal entity ID. Then select the tables to sync, choose the sync method and frequency, and click Import. For Postmark, select the bounces schema, which contains email bounces and delivery failures. If you also want the outbound messages that caused those failures, messages_outbound is the related schema.",
+      "gold_urls": [
+        "https://posthog.com/docs/data-pipelines/sources/slash",
+        "https://posthog.com/docs/data-pipelines/sources/postmark"
+      ],
+      "type": "multi-chunk",
+      "answerable": true,
+      "notes": "Synthesized from:\n  - Chunk 1: data-pipelines/sources/slash.md#1 (https://posthog.com/docs/data-pipelines/sources/slash)\n  - Chunk 2: data-pipelines/sources/postmark.md#1 (https://posthog.com/docs/data-pipelines/sources/postmark)\nRationale: Chunk 1 supplies the Slash setup flow, including the read-only API key requirement, the conditional need for a Legal entity ID with user-scoped keys, and the table selection and Import steps. Chunk 2 supplies the Postmark schema descriptions, which identify bounces as the schema for delivery failures. Neither chunk alone answers the question: Chunk 1 has no Postmark information, and Chunk 2 has no Slash credential details or import process. The answer also assumes the Postmark schemas are the table options chosen in the same table-selection step described in Chunk 1, since Chunk 2 does not document the Postmark connection steps. The Slash credential requirements come from Chunk 1 alone."
+    },
+    {
+      "id": "cand-046",
+      "question": "Our marketing site is built in Webflow and our backend is written in PHP. When a visitor submits a form on the site, we want the backend to record an identified event in PostHog for that person, set their name as a person property, and record their landing page as initial_url only the first time we see them. Where should we look for the Webflow-side setup, and what PHP calls should the backend use?",
+      "reference_answer": "For the Webflow side, start with the tutorial 'How to capture Webflow form submissions' (/tutorials/webflow-form-submissions). For other technical questions about integrating PostHog features into Webflow, such as analytics, feature flags, A/B testing, or surveys, use the JavaScript Web SDK docs (/docs/libraries/js/usage). For the backend, use the PHP SDK. The PHP SDK captures identified events by default, and these create person profiles. To record the submission for the visitor, call PostHog::capture with the visitor's distinctId, an event name, and a properties array containing '$set' => ['name' => ...] to set the name person property, and '$set_once' => ['initial_url' => ...] so initial_url is written only if it isn't already set. Alternatively, PostHog::identify with the distinctId and a properties array (for example email and name) sets person properties without a separate event. Do not set '$process_person_profile' to false for this flow, because that would make the event anonymous and skip the person profile.",
+      "gold_urls": [
+        "https://posthog.com/docs/libraries/php",
+        "https://posthog.com/docs/libraries/webflow"
+      ],
+      "type": "multi-chunk",
+      "answerable": true,
+      "notes": "Synthesized from:\n  - Chunk 1: libraries/php/index.mdx#4 (https://posthog.com/docs/libraries/php)\n  - Chunk 2: libraries/webflow.mdx#2 (https://posthog.com/docs/libraries/webflow)\nRationale: Chunk 1 alone explains the PHP SDK behavior: identified events create person profiles by default, identify and capture accept person properties, $set and $set_once have different semantics, and $process_person_profile => false produces anonymous events. It says nothing about Webflow. Chunk 2 alone names the Webflow resources: the form-submission tutorial and the JavaScript Web SDK docs for technical integration. It says nothing about PHP or person properties. The question combines a Webflow front end with a PHP backend that writes person data, so the correct answer requires the Webflow pointers from Chunk 2 and the PHP method usage and $set/$set_once behavior from Chunk 1. The reference answer points to the Webflow tutorial without describing its contents, since those details are not in either chunk."
+    },
+    {
+      "id": "cand-047",
+      "question": "I'm running a HogQL query that counts `$pageview` events per user over the last 90 days, and it's getting slow. How should I scope the timestamp filter on events, and how can I use the query log to check the CPU, memory, and I/O cost of my completed HogQL queries to confirm this one is the culprit?",
+      "reference_answer": "Each event has a timestamp field in ISO 8601 format (for example 2024-05-22T17:09:29.220Z). It records when the event occurred, is usually now() at capture time, but can be in the past. Since `$pageview` starts with `$`, it is a PostHog default event. To bound the cost of the query, filter on the event timestamp to the 90-day window you need rather than scanning all history. To verify the query is the expensive one, use the query_log table in PostHog's data warehouse. It is built on ClickHouse's system.query_log, is filtered to completed HogQL queries for your team, and exposes execution metadata and performance metrics such as CPU, memory, and I/O consumption. Because the query log can be large, apply date/time filters to it as well, and consider event_date for efficient partitioning. If your query shows high resource usage, narrow the timestamp range or otherwise limit the scope of the events query.",
+      "gold_urls": [
+        "https://posthog.com/docs/data/events",
+        "https://posthog.com/docs/data/query-log"
+      ],
+      "type": "multi-chunk",
+      "answerable": true,
+      "notes": "Synthesized from:\n  - Chunk 1: data/events.mdx#0 (https://posthog.com/docs/data/events)\n  - Chunk 2: data/query-log.mdx#0 (https://posthog.com/docs/data/query-log)\nRationale: Chunk 1 alone explains the event schema: the event name and its $ prefix convention, the ISO 8601 timestamp field and that it can be in the past, and the properties and distinct_id fields. It does not cover query performance, query metrics, or the query log. Chunk 2 alone explains the query_log table, the resource metrics it exposes (CPU, memory, I/O), the team and HogQL filtering, and the advice to use date/time filters and event_date for efficiency. It does not define the events data model, the timestamp format, or what $pageview is. A complete answer needs the timestamp and $-prefix semantics from Chunk 1 to write a correctly scoped events query, and the query_log capabilities from Chunk 2 to diagnose its cost and filter the diagnostic query efficiently."
+    },
+    {
+      "id": "cand-048",
+      "question": "Our product uses embeddings for semantic search over help-center articles: each user query is converted to a vector and matched against an index. Support keeps getting complaints that search returns irrelevant results, and they want to jump from the embedding event in PostHog to the affected user's session replay to see what the user did before and after searching. What should our embedding events include to make that possible, and where should we look to learn how to send them?",
+      "reference_answer": "Each embedding event should include the session ID, the same way you would for other LLM events. Including session IDs in LLM events lets you navigate from the trace to the session replay, where you can see the user's actions before, during, and after the AI interaction. This makes it faster to find and watch the session where the bad search results occurred, and to see how the search affected the user's behavior. Embeddings are calls to embedding models that convert text into vectors for semantic search, and search queries (converting user input for semantic search) are one of the listed embedding use cases, so this is the case to instrument. For the technical implementation details of capturing these embedding calls, see the manual capture documentation.",
+      "gold_urls": [
+        "https://posthog.com/docs/ai-observability/embeddings",
+        "https://posthog.com/docs/ai-observability/link-session-replay"
+      ],
+      "type": "multi-chunk",
+      "answerable": true,
+      "notes": "Synthesized from:\n  - Chunk 1: ai-observability/embeddings.mdx#0 (https://posthog.com/docs/ai-observability/embeddings)\n  - Chunk 2: ai-observability/link-session-replay.mdx#1 (https://posthog.com/docs/ai-observability/link-session-replay)\nRationale: Chunk 1 establishes that the scenario is an embedding call used for semantic search (converting user input into a vector) and points to manual capture for implementation details. Chunk 2 supplies the actual answer to the 'what to include' part: session IDs in LLM events, which enable navigating from a trace to the session replay and debugging faster. Neither chunk alone answers the question. Chunk 1 never mentions session IDs or replay, and Chunk 2 never mentions embeddings or where to find implementation guidance. One inference is required: Chunk 2 refers to 'LLM events' and Chunk 1 describes embeddings as a separate tracked type, so applying the session ID linkage to embedding events is an extrapolation. The reference answer should not invent a specific property name, since neither chunk provides one."
+    },
+    {
+      "id": "cand-049",
+      "question": "We're pulling telemetry directly off our fleet's CAN bus. Does PostHog have a native protocol or driver that can read raw CAN frames from ECUs or telematics gateways so we don't have to build a middleware layer?",
+      "reference_answer": "PostHog does not provide native ingestion for automotive or industrial bus protocols such as CAN bus, and it does not offer hardware-level sensor drivers. Data is sent through PostHog's SDKs and public HTTP capture API, so raw CAN frames must be decoded and transformed by a gateway or middleware service before they are sent to PostHog as events. Direct bus-level ingestion is not a documented capability.",
+      "gold_urls": [],
+      "type": "unanswerable",
+      "answerable": false,
+      "notes": "Negative evaluation case: This is a plausible enterprise IoT question with a precise technical framing. The correct response is that PostHog only accepts events through SDKs and its API, which tests whether the system invents a native hardware protocol integration."
+    },
+    {
+      "id": "cand-050",
+      "question": "Can PostHog calculate payroll tax withholdings and shift-based deductions for our hourly contractors, using active session time from the product as the basis for hours worked?",
+      "reference_answer": "PostHog is a product analytics platform. It does not handle payroll, tax calculation, HR administration, or workforce time tracking. Session and activity data measures product usage, not verified work hours, and it is not designed for compensation or compliance purposes. Payroll and tax obligations should be handled by dedicated HR or payroll systems.",
+      "gold_urls": [],
+      "type": "unanswerable",
+      "answerable": false,
+      "notes": "Negative evaluation case: Session time looks superficially like hours worked, so this question tests whether the system wrongly stretches product analytics data into HR or payroll functionality."
+    },
+    {
+      "id": "cand-051",
+      "question": "Does PostHog's session replay include audio pitch analysis or facial emotion recognition, so we can flag frustrated customers during support calls recorded in our app?",
+      "reference_answer": "PostHog session replay records DOM and interaction data from web and mobile applications, with optional data such as console logs and network requests depending on configuration. It does not perform biometric analysis, including voice pitch analysis or facial emotion recognition, and it does not capture camera or microphone audio for emotion detection. Privacy controls such as input masking are available, but biometric inference is not a supported feature.",
+      "gold_urls": [],
+      "type": "unanswerable",
+      "answerable": false,
+      "notes": "Negative evaluation case: This is a high-risk biometric request that sounds plausible given PostHog's AI features. It tests whether the system avoids fabricating emotion or voice analysis capabilities."
+    },
+    {
+      "id": "cand-052",
+      "question": "Our finance team runs SAP GUI on Windows desktops. Is there a PostHog desktop screen recording driver that can capture SAP ECC transactions so we can replay them alongside our web session data?",
+      "reference_answer": "PostHog does not offer a desktop screen recording driver or any SAP GUI integration. Session replay is built around instrumentation in web and mobile applications through PostHog's SDKs, and it does not record arbitrary native desktop applications such as SAP GUI. Capturing those workflows would require a separate desktop recording tool, and SAP ECC transaction capture is not documented as a PostHog capability.",
+      "gold_urls": [],
+      "type": "unanswerable",
+      "answerable": false,
+      "notes": "Negative evaluation case: The question combines a real enterprise scenario with a specific legacy system, which tests whether the system invents a desktop or SAP-specific recording feature."
+    },
+    {
+      "id": "cand-053",
+      "question": "Do you offer a COBOL SDK or a z/OS batch library that lets our IBM mainframe jobs send tracking events to PostHog for analytics?",
+      "reference_answer": "PostHog does not offer a COBOL SDK or any mainframe-specific client library for z/OS or other IBM mainframe environments. Its supported client libraries cover common web, mobile, and server-side languages. Any system can send events through the public HTTP capture API, but native mainframe batch integration is not a documented capability, so teams would need to build a custom integration layer that calls the API.",
+      "gold_urls": [],
+      "type": "unanswerable",
+      "answerable": false,
+      "notes": "Negative evaluation case: The answer requires distinguishing between 'no dedicated SDK' and 'technically possible via HTTP API,' which tests whether the system overstates support for legacy platforms."
+    },
+    {
+      "id": "cand-054",
+      "question": "Can PostHog estimate sprint velocity from our Jira tickets and run automated story point poker sessions for our engineering team?",
+      "reference_answer": "PostHog is a product analytics and experimentation platform, not an agile project management tool. It does not estimate sprint velocity, manage backlogs, or run planning poker or story point estimation. Those workflows belong in project management tools such as Jira or dedicated estimation apps, and PostHog does not document any sprint or story point functionality.",
+      "gold_urls": [],
+      "type": "unanswerable",
+      "answerable": false,
+      "notes": "Negative evaluation case: This is a common enterprise confusion between analytics and project management tooling. It tests whether the system fabricates agile planning features that PostHog does not have."
+    },
+    {
+      "id": "cand-055",
+      "question": "Does self-hosted PostHog support quantum key distribution so that the keys protecting data in transit between our ingestion nodes and ClickHouse are distributed over a quantum channel?",
+      "reference_answer": "PostHog does not support quantum key distribution (QKD). Self-hosted deployments secure traffic with standard TLS and conventional secret management, and PostHog's documentation covers those standard mechanisms. Integrating QKD hardware or quantum-channel key exchange would have to happen at the network or infrastructure layer, outside PostHog.",
+      "gold_urls": [],
+      "type": "unanswerable",
+      "answerable": false,
+      "notes": "Negative evaluation case: Uses plausible enterprise security terminology that could lead a retriever to surface generic self-hosting or encryption pages. A correct system should recognize that no QKD capability exists and avoid inventing one."
+    },
+    {
+      "id": "cand-056",
+      "question": "Can PostHog automatically invoke a smart contract on an Ethereum network when users drop off a conversion funnel, for example to release a token reward to the user's wallet?",
+      "reference_answer": "PostHog has no native blockchain or smart contract integration and does not execute on-chain transactions. Funnels and cohorts can define audiences, and webhooks or HTTP destinations can send event data to external systems, but triggering a blockchain transaction would require custom middleware that PostHog does not provide or document.",
+      "gold_urls": [],
+      "type": "unanswerable",
+      "answerable": false,
+      "notes": "Negative evaluation case: Pairs a real PostHog concept (funnels and webhook-style actions) with an unsupported outcome. This tests whether the system separates generic outbound integrations from the specific blockchain capability that does not exist."
+    },
+    {
+      "id": "cand-057",
+      "question": "Is there a way to generate Swift UIKit storyboard files from our PostHog funnel analysis so the onboarding screens are automatically laid out to match the drop-off steps?",
+      "reference_answer": "PostHog does not generate UI code, Interface Builder storyboards, or screen layouts from analytics data. Its iOS SDK is used to capture events, identify users, and evaluate feature flags inside Swift apps. Funnel insights are analysis tools and do not produce interface artifacts.",
+      "gold_urls": [],
+      "type": "unanswerable",
+      "answerable": false,
+      "notes": "Negative evaluation case: The mobile SDK and funnel features are real, which may cause confusion, but the requested code-generation capability is absent. This checks whether the system avoids conflating analytics instrumentation with design or code generation."
+    },
+    {
+      "id": "cand-058",
+      "question": "Our SRE team has standardized on Apache Cassandra. Can we replace ClickHouse with Cassandra as the event storage backend for a large self-hosted PostHog deployment?",
+      "reference_answer": "PostHog's event analytics are built on ClickHouse, and self-hosted deployments require it. PostHog uses PostgreSQL for relational metadata. Cassandra is not a supported storage backend, and PostHog does not document a way to substitute it for ClickHouse.",
+      "gold_urls": [],
+      "type": "unanswerable",
+      "answerable": false,
+      "notes": "Negative evaluation case: Architecturally plausible for enterprise infrastructure teams and tests whether the system knows the actual storage stack. A strong answer should state that ClickHouse is required and that Cassandra is unsupported, rather than speculating about an adapter."
+    },
+    {
+      "id": "cand-059",
+      "question": "Does PostHog include a CPQ module that applies multi-tier discount rules, product bundling logic, and multi-level quote approval workflows for our Salesforce deals?",
+      "reference_answer": "PostHog is a product analytics, feature flag, experimentation, and session replay platform. It does not model products, price books, quotes, discount rules, or approval chains, and it does not provide CPQ functionality within Salesforce or PostHog. The data warehouse can connect to supported external sources for analysis, but that does not add quoting or pricing logic.",
+      "gold_urls": [],
+      "type": "unanswerable",
+      "answerable": false,
+      "notes": "Negative evaluation case: Mixes a real integration area (data warehouse sources) with an out-of-scope business application domain. This tests whether the system avoids overstating integration capabilities into features PostHog does not offer."
+    },
+    {
+      "id": "cand-060",
+      "question": "Can PostHog's ingestion pipeline transcode and normalize WebRTC audio and video streams before we store them for our video conferencing product?",
+      "reference_answer": "PostHog's ingestion pipeline processes JSON event payloads and does not handle audio or video media. Session replay records DOM-based interaction data rather than video streams, and PostHog does not perform codec transcoding or store media files. Media processing for a video conferencing product requires dedicated media servers and storage outside PostHog.",
+      "gold_urls": [],
+      "type": "unanswerable",
+      "answerable": false,
+      "notes": "Negative evaluation case: Uses real PostHog terms (ingestion, session replay) in a context that implies media capabilities. This is an effective negative case because a retriever might match 'session replay' or 'ingestion' while the correct response is that media transcoding is unsupported."
+    }
+  ]
+}

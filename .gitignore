@@ -11,3 +11,5 @@ runs/
 .idea/
 .vscode/
 *.iml
+eval/.*cache*
+eval/*review*
