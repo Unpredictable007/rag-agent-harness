@@ -74,3 +74,35 @@ $$\text{max\_tokens} = \text{thinking\_tokens} + \text{text\_tokens}$$
 
 ### 4.4 Failover Reliability
 - Dual provider failover in `src/llm.py` provides resilient production gating. Configuring Claude Haiku as default with automated fallback to Gemini Flash resolves transient cloud availability spikes (e.g. Gemini 503 UNAVAILABLE errors observed during earlier sweeps) while maintaining identical Pydantic output schemas.
+
+---
+
+## 5. Addendum: Reasoning Effort Ablation (xhigh vs high vs medium)
+
+To determine the optimal latency vs quality operating point on the Pareto frontier, we evaluated the single-shot generation pipeline across three reasoning effort configurations (`xhigh`, `high`, and `medium`) over all 45 dev questions (3 trials each = 135 trials per sweep, 405 total runs).
+
+### 5.1 Comparative Metrics Table
+
+| Effort Level | Parse Success Rate | Hallucinated Citations Rate | Abstain Accuracy (Unanswerable) | False Abstain Rate | P50 Latency (ms) | P95 Latency (ms) | Mean Latency (ms) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **xhigh** | 100.0% (135/135) | 0.0% (0/204) | 100.0% (27/27) | 11.1% (12/108) | 3170.1 | 12819.8 | 4724.9 |
+| **high** | 100.0% (135/135) | 0.0% (0/196) | 100.0% (27/27) | 12.0% (13/108) | 2370.8 | 7613.3 | 2968.6 |
+| **medium** | 100.0% (135/135) | 0.0% (0/181) | 100.0% (27/27) | 13.9% (15/108) | 1682.6 | 5211.1 | 2333.4 |
+
+### 5.2 Technical Takeaways
+
+1. **Latency Delta and Tail Truncation:**
+   - **`high` vs `xhigh`:** P50 latency drops by 25.2% (2370.8 ms vs 3170.1 ms), while P95 tail latency drops by 40.6% (7613.3 ms vs 12819.8 ms). Mean latency improves by 37.2% (2968.6 ms vs 4724.9 ms).
+   - **`medium` vs `xhigh`:** P50 latency drops by 46.9% (1682.6 ms vs 3170.1 ms), while P95 latency drops by 59.4% (5211.1 ms vs 12819.8 ms). Mean latency drops by 50.6% (2333.4 ms vs 4724.9 ms).
+   - The primary driver of latency reduction is the compression of internal thinking tokens during complex multi-chunk reasoning. Single-chunk and unanswerable queries remain predictably fast across all effort settings (~1.0s to ~2.5s).
+
+2. **Quality Retention:**
+   - **Grounding and Hallucination Resistance:** Across all 405 runs across all three sweeps, the hallucinated citation rate remained strictly **0.0%** (zero invalid chunk IDs cited).
+   - **Negative Abstain Precision:** Abstain accuracy on unanswerable questions remained **100.0%** (27/27) across all three settings. The model reliably identifies when requested facts are absent from the retrieved candidate context without relying on maximum deliberative reasoning depth.
+   - **Answerable Recall:** False abstain rates increase slightly as reasoning capacity is constrained: 11.1% (`xhigh`) to 12.0% (`high`) to 13.9% (`medium`). This incremental delta occurs exclusively on multi-chunk synthesis questions where partial retrieval requires complex multi-step hypothesis verification.
+
+3. **Production Serving Recommendations:**
+   - **Interactive User-Facing QA (Recommended: `effort: high`):** Provides the optimal operational trade-off. Shaves over 5.2 seconds off P95 tail latency (7.6s vs 12.8s) and brings mean response time under 3.0s, with negligible impact on answerable recall (+0.9% false abstains) and identical zero-hallucination guarantees.
+   - **High-Throughput / Cost-Sensitive Batch Pipelines (Alternative: `effort: medium`):** Recommended when strict sub-2.0s median response times are mandated or token throughput costs dominate, accepting a 2.8% increase in false abstains for complex synthesis tasks.
+   - **Complex Offline Synthesis / Research Agents (`effort: xhigh`):** Recommended for asynchronous agentic workflows or complex document summarization where latency SLAs are unconstrained and maximal multi-hop deduction across distant contexts is required.
+

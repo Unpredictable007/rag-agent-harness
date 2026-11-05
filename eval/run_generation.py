@@ -8,9 +8,11 @@ Logs structured transcripts to runs/transcripts/rag_dev_trials.jsonl.
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 import json
 from pathlib import Path
+import threading
 from typing import Any, Literal
 
 import numpy as np
@@ -90,6 +92,20 @@ def parse_arguments() -> argparse.Namespace:
         choices=["anthropic", "gemini"],
         default=None,
         help="Primary LLM provider (default: from src.config.DEFAULT_LLM_PROVIDER)",
+    )
+    parser.add_argument(
+        "--effort",
+        type=str,
+        choices=["xhigh", "high", "medium", "low"],
+        default="xhigh",
+        help="Reasoning effort for extended thinking models (default: xhigh)",
+    )
+    parser.add_argument(
+        "--concurrency",
+        "-c",
+        type=int,
+        default=5,
+        help="Number of concurrent worker threads for generation (default: 5)",
     )
     return parser.parse_args()
 
@@ -245,6 +261,8 @@ def run_generation_evaluation(
     append: bool = False,
     max_tokens: int = 8192,
     provider: str | None = None,
+    effort: str | None = None,
+    concurrency: int = 5,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Execute generation evaluation loop over dev set questions."""
     dataset = GoldenDataset.from_file(dataset_path)
@@ -262,78 +280,96 @@ def run_generation_evaluation(
         dev_items = dev_items[:sample]
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    write_mode = "a" if append else "w"
+    if not append and output_path.exists():
+        output_path.unlink()
 
     print(
         f"Starting generation evaluation: {len(dev_items)} items x {trials} trials "
-        f"= {len(dev_items) * trials} generations (retrieval mode: {mode}, k: {top_k})..."
+        f"= {len(dev_items) * trials} generations (retrieval mode: {mode}, k: {top_k}, "
+        f"effort: {effort or 'xhigh'}, concurrency: {concurrency})..."
     )
 
+    file_lock = threading.Lock()
     all_trial_records: list[dict[str, Any]] = []
 
-    with open(output_path, write_mode, encoding="utf-8") as f_out:
-        for item_idx, item in enumerate(dev_items, start=1):
-            print(
-                f"\n[{item_idx}/{len(dev_items)}] ({item.id}) [{item.type}] "
-                f"{item.question[:65]}..."
-            )
+    def evaluate_item(item_idx: int, item: GoldenItem) -> list[dict[str, Any]]:
+        # 1. Retrieve candidate chunks once per question
+        retrieved_chunks = retrieve(
+            query=item.question,
+            mode=mode,
+            k=top_k,
+            trace=False,
+        )
 
-            # 1. Retrieve candidate chunks once per question
-            retrieved_chunks = retrieve(
+        item_records: list[dict[str, Any]] = []
+        for trial_idx in range(1, trials + 1):
+            gen_result: GenerationResult = generate_answer(
                 query=item.question,
-                mode=mode,
-                k=top_k,
-                trace=False,
+                retrieved_chunks=retrieved_chunks,
+                max_tokens=max_tokens,
+                provider=provider,
+                reasoning_effort=effort,
             )
 
-            # 2. Run multi-trial generations
-            for trial_idx in range(1, trials + 1):
-                gen_result: GenerationResult = generate_answer(
-                    query=item.question,
-                    retrieved_chunks=retrieved_chunks,
-                    max_tokens=max_tokens,
-                    provider=provider,
-                )
+            output_obj = gen_result.output
+            record: dict[str, Any] = {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "question_id": item.id,
+                "question": item.question,
+                "type": item.type,
+                "answerable": item.answerable,
+                "gold_urls": item.gold_urls,
+                "trial": trial_idx,
+                "retrieval_mode": mode,
+                "retrieval_k": top_k,
+                "retrieved_chunk_ids": [r.chunk_id for r in retrieved_chunks],
+                "output_parsed": output_obj is not None,
+                "answer": output_obj.answer if output_obj else None,
+                "citations": output_obj.citations if output_obj else [],
+                "abstain": output_obj.abstain if output_obj else None,
+                "valid_citations": gen_result.valid_citations,
+                "hallucinated_citations": gen_result.hallucinated_citations,
+                "is_valid": gen_result.is_valid,
+                "model": gen_result.model,
+                "provider": gen_result.provider,
+                "effort": effort or "xhigh",
+                "fell_back": gen_result.fell_back,
+                "latency_ms": round(gen_result.latency_ms, 2),
+                "raw_text": gen_result.raw_text,
+                "error_message": gen_result.error_message,
+            }
+            item_records.append(record)
 
-                output_obj = gen_result.output
-                record: dict[str, Any] = {
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "question_id": item.id,
-                    "question": item.question,
-                    "type": item.type,
-                    "answerable": item.answerable,
-                    "gold_urls": item.gold_urls,
-                    "trial": trial_idx,
-                    "retrieval_mode": mode,
-                    "retrieval_k": top_k,
-                    "retrieved_chunk_ids": [r.chunk_id for r in retrieved_chunks],
-                    "output_parsed": output_obj is not None,
-                    "answer": output_obj.answer if output_obj else None,
-                    "citations": output_obj.citations if output_obj else [],
-                    "abstain": output_obj.abstain if output_obj else None,
-                    "valid_citations": gen_result.valid_citations,
-                    "hallucinated_citations": gen_result.hallucinated_citations,
-                    "is_valid": gen_result.is_valid,
-                    "model": gen_result.model,
-                    "provider": gen_result.provider,
-                    "fell_back": gen_result.fell_back,
-                    "latency_ms": round(gen_result.latency_ms, 2),
-                    "raw_text": gen_result.raw_text,
-                    "error_message": gen_result.error_message,
-                }
-
-                f_out.write(json.dumps(record) + "\n")
+        with file_lock:
+            with open(output_path, "a", encoding="utf-8") as f_out:
+                for rec in item_records:
+                    f_out.write(json.dumps(rec) + "\n")
                 f_out.flush()
-                all_trial_records.append(record)
 
-                status_mark = "OK" if gen_result.is_valid else "ERR"
-                abstain_info = f", abstain={record['abstain']}" if record["abstain"] else ""
-                fallback_info = f", fell_back={gen_result.fell_back}" if gen_result.fell_back else ""
-                print(
-                    f"  Trial {trial_idx}/{trials}: [{status_mark}] "
-                    f"latency={record['latency_ms']:.0f}ms, cites={len(record['citations'])}"
-                    f"{abstain_info}{fallback_info}"
-                )
+            status_summary = ", ".join(
+                f"T{r['trial']}:{'OK' if r['is_valid'] else 'ERR'}({r['latency_ms']:.0f}ms)"
+                for r in item_records
+            )
+            print(f"[{item_idx}/{len(dev_items)}] ({item.id}) [{item.type}] {status_summary}")
+
+        return item_records
+
+    if concurrency > 1 and len(dev_items) > 1:
+        with ThreadPoolExecutor(max_workers=concurrency) as executor:
+            future_to_idx = {
+                executor.submit(evaluate_item, idx, item): idx
+                for idx, item in enumerate(dev_items, start=1)
+            }
+            for future in as_completed(future_to_idx):
+                item_records = future.result()
+                all_trial_records.extend(item_records)
+    else:
+        for idx, item in enumerate(dev_items, start=1):
+            item_records = evaluate_item(idx, item)
+            all_trial_records.extend(item_records)
+
+    # Sort records by question_id and trial for stable downstream ordering
+    all_trial_records.sort(key=lambda r: (r["question_id"], r["trial"]))
 
     summary = compute_summary_statistics(all_trial_records)
     display_summary_report(
@@ -360,6 +396,8 @@ def main() -> None:
         append=args.append,
         max_tokens=args.max_tokens,
         provider=args.provider,
+        effort=args.effort,
+        concurrency=args.concurrency,
     )
 
 

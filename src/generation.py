@@ -203,6 +203,7 @@ def generate_answer(
     retrieved_chunks: list[dict | Any],
     max_tokens: int = 8192,
     provider: Optional[str] = None,
+    reasoning_effort: Optional[str] = None,
 ) -> GenerationResult:
     """Generate structured answer with citations and abstain policy enforcement.
 
@@ -211,6 +212,7 @@ def generate_answer(
         retrieved_chunks: List of retrieved candidate chunks (dicts or RetrievalResult objects).
         max_tokens: Maximum tokens in completion.
         provider: Optional primary LLM provider ('anthropic' or 'gemini').
+        reasoning_effort: Optional reasoning effort ('xhigh', 'high', 'medium', 'low').
 
     Returns:
         GenerationResult containing validated output, citation splits, latency, and diagnostics.
@@ -225,6 +227,7 @@ def generate_answer(
             system_prompt=system_prompt,
             max_tokens=max_tokens,
             provider=provider,
+            reasoning_effort=reasoning_effort,
         )
     except Exception as exc:
         latency_ms = (time.perf_counter() - t_start) * 1000.0

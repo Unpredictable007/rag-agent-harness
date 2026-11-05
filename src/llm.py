@@ -21,9 +21,10 @@ from typing import Optional
 from google.genai import types
 import src.config
 from src.config import (
+    DEFAULT_LLM_PROVIDER,
+    DEFAULT_REASONING_EFFORT,
     GEMINI_FLASH,
     ANTHROPIC_HAIKU,
-    DEFAULT_LLM_PROVIDER,
     get_gemini_client,
     get_anthropic_client,
 )
@@ -100,17 +101,21 @@ def _call_anthropic(
     prompt: str,
     system_prompt: Optional[str] = None,
     max_tokens: int = 4096,
+    reasoning_effort: Optional[str] = None,
 ) -> str:
-    """Execute Anthropic Claude Haiku generation with reasoning effort xhigh."""
+    """Execute Anthropic Claude Haiku generation with configurable reasoning effort."""
     anthropic_client = get_anthropic_client()
     messages = [{"role": "user", "content": prompt}]
-    # With extended thinking (effort xhigh), thinking tokens count against max_tokens.
+    effort = (
+        reasoning_effort or getattr(src.config, "DEFAULT_REASONING_EFFORT", "xhigh")
+    ).lower().strip()
+    # With extended thinking, thinking tokens count against max_tokens.
     # Provide 8192 max_tokens headroom to ensure complete generation without truncation.
     anthropic_max_tokens = max(max_tokens, 8192)
     kwargs = {
         "model": ANTHROPIC_HAIKU,
         "max_tokens": anthropic_max_tokens,
-        "output_config": {"effort": "xhigh"},
+        "output_config": {"effort": effort},
         "messages": messages,
     }
     if system_prompt:
@@ -151,6 +156,7 @@ def generate_text(
     system_prompt: Optional[str] = None,
     max_tokens: int = 4096,
     provider: Optional[str] = None,
+    reasoning_effort: Optional[str] = None,
 ) -> LLMResponse:
     """Generate text using primary provider with bidirectional fallback.
 
@@ -160,6 +166,8 @@ def generate_text(
         max_tokens: Maximum tokens in generated completion.
         provider: Primary LLM provider ('anthropic' or 'gemini').
                   Defaults to src.config.DEFAULT_LLM_PROVIDER ('anthropic').
+        reasoning_effort: Optional reasoning effort for extended thinking models
+                          ('xhigh', 'high', 'medium', 'low'). Defaults to 'xhigh'.
 
     Returns:
         LLMResponse containing the generated text, metadata, and fallback details.
@@ -182,6 +190,7 @@ def generate_text(
                 prompt=prompt,
                 system_prompt=system_prompt,
                 max_tokens=max_tokens,
+                reasoning_effort=reasoning_effort,
             )
             return LLMResponse(
                 text=text,

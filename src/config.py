@@ -36,6 +36,7 @@ RERANKER_MODEL_NAME = "BAAI/bge-reranker-base"
 # Provider configuration
 DEFAULT_LLM_PROVIDER: str = os.getenv("DEFAULT_LLM_PROVIDER", "anthropic")
 PRIMARY_PROVIDER: str = DEFAULT_LLM_PROVIDER
+DEFAULT_REASONING_EFFORT: str = os.getenv("DEFAULT_REASONING_EFFORT", "xhigh")
 
 # Purge any ambient unauthorized keys from shell/OS environment to prevent silent fallback
 for forbidden_env in ["GOOGLE_API_KEY", "GEMINI_API_KEY", "ANTHROPIC_API_KEY"]:
