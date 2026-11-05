@@ -33,6 +33,10 @@ ANTHROPIC_SONNET = os.getenv("ANTHROPIC_SONNET", "claude-sonnet-5-5")
 EMBEDDING_MODEL_NAME = "BAAI/bge-small-en-v1.5"
 RERANKER_MODEL_NAME = "BAAI/bge-reranker-base"
 
+# Provider configuration
+DEFAULT_LLM_PROVIDER: str = os.getenv("DEFAULT_LLM_PROVIDER", "anthropic")
+PRIMARY_PROVIDER: str = DEFAULT_LLM_PROVIDER
+
 # Purge any ambient unauthorized keys from shell/OS environment to prevent silent fallback
 for forbidden_env in ["GOOGLE_API_KEY", "GEMINI_API_KEY", "ANTHROPIC_API_KEY"]:
     os.environ.pop(forbidden_env, None)

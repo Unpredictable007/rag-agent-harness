@@ -88,6 +88,13 @@ def parse_arguments() -> argparse.Namespace:
         default=2048,
         help="Maximum tokens for generation response (default: 2048)",
     )
+    parser.add_argument(
+        "--provider",
+        type=str,
+        choices=["anthropic", "gemini"],
+        default=None,
+        help="Primary LLM provider (default: from src.config.DEFAULT_LLM_PROVIDER)",
+    )
     return parser.parse_args()
 
 
@@ -241,6 +248,7 @@ def run_generation_evaluation(
     question_id: str | None = None,
     append: bool = False,
     max_tokens: int = 2048,
+    provider: str | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Execute generation evaluation loop over dev set questions."""
     dataset = GoldenDataset.from_file(dataset_path)
@@ -288,6 +296,7 @@ def run_generation_evaluation(
                     query=item.question,
                     retrieved_chunks=retrieved_chunks,
                     max_tokens=max_tokens,
+                    provider=provider,
                 )
 
                 output_obj = gen_result.output
@@ -354,6 +363,7 @@ def main() -> None:
         question_id=args.question_id,
         append=args.append,
         max_tokens=args.max_tokens,
+        provider=args.provider,
     )
 
 
