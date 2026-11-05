@@ -58,7 +58,7 @@ Evaluation across 135 multi-trial runs on the frozen dev set demonstrates **100.
 ## 4. In-Depth Engineering Findings & Production Takeaways
 
 ### 4.1 The Extended Thinking Token Hazard
-In modern reasoning models (Claude 3.7 Sonnet, Claude 3.5/Haiku with thinking), `max_tokens` represents the **combined ceiling** for reasoning tokens and visible output tokens:
+In modern reasoning models (Claude 5.5 Sonnet, Claude 5.5 Haiku with thinking), `max_tokens` represents the **combined ceiling** for reasoning tokens and visible output tokens:
 $$\text{max\_tokens} = \text{thinking\_tokens} + \text{text\_tokens}$$
 
 - **The Truncation Mechanism:** When reasoning effort is configured to `xhigh`, the model executes an internal reasoning trace that consumes 2000 to 3500 tokens on multi-chunk synthesis questions. Under an initial default of `max_tokens: 2048`, thinking tokens exhausted the entire allowance, leaving 0 tokens for visible output (`stop_reason: max_tokens`). On long queries, this produced partial strings severed mid-JSON (e.g. `{"answer": "Web (React...`), resulting in `Unterminated string` JSON parse errors (88.9% parse rate).

@@ -19,7 +19,7 @@ flowchart TD
         User["User Question / Agent Task"] --> Router{"Execution Mode"}
         
         Router -->|Single-Shot RAG| RAGPrompt["Prompt Assembly with Context"]
-        Router -->|Agentic Workflow| AgentLoop["Agent Loop (Claude 3.5 Haiku, Step Budget <= 6)"]
+        Router -->|Agentic Workflow| AgentLoop["Agent Loop (Claude 5.5 Haiku, Step Budget <= 6)"]
         
         AgentLoop -->|MCP Tool Call: search_docs| MCP["FastMCP Server (stdio)"]
         RAGPrompt -->|Retrieve Context| MCP
@@ -44,7 +44,7 @@ flowchart TD
         Golden["Golden Benchmark Set (40+ Curated Q&A, Dev / Holdout)"] --> EvalRunner["Evaluation Harness"]
         FinalAnswer --> EvalRunner
         EvalRunner --> Metrics["Deterministic Metrics (Recall@k, MRR, Hit Rate)"]
-        EvalRunner --> Judge["LLM-as-a-Judge (Claude 3.5 Sonnet: Calibrated Kappa >= 0.70)"]
+        EvalRunner --> Judge["LLM-as-a-Judge (Claude 5.5 Sonnet: Calibrated Kappa >= 0.70)"]
         EvalRunner --> AgentGraders["Trajectory Graders (Constraints, pass@k vs pass^k)"]
         Metrics & Judge & AgentGraders --> Gate["Regression Gate (pytest vs baseline.json)"]
     end
@@ -67,7 +67,7 @@ flowchart TD
 
 ### 4. Consumption & Execution Layer
 - **Direct RAG Mode:** Isolated prompt with strict citation constraints and structured Pydantic validation (`GenerationOutput`).
-- **FastMCP Server & Agent Loop:** Model Context Protocol (v2) exposing `search_docs` over stdio. Autonomous tool-use loop on Claude 3.5 Haiku with a hard step budget ($\le 6$) and replayable JSONL trace logging.
+- **FastMCP Server & Agent Loop:** Model Context Protocol (v2) exposing `search_docs` over stdio. Autonomous tool-use loop on Claude 5.5 Haiku with a hard step budget ($\le 6$) and replayable JSONL trace logging.
 
 ### 5. Evaluation & Regression Gate
 - **Golden Benchmark Set:** 40+ curated samples split into development and frozen holdout sets.
