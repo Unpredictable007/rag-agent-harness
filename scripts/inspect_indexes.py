@@ -5,13 +5,7 @@ Usage:
     .venv/bin/python scripts/inspect_indexes.py [optional_query]
 """
 
-import sys
 import pickle
-from pathlib import Path
-
-# Add project root to sys.path so config and src imports work
-REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT))
 
 import lancedb
 from src.config import LANCEDB_DIR, LANCEDB_TABLE_NAME, BM25_INDEX_PATH

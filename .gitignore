@@ -11,5 +11,6 @@ runs/
 .idea/
 .vscode/
 *.iml
+*.egg-info/
 eval/.*cache*
 eval/*review*

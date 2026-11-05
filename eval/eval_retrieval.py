@@ -16,14 +16,10 @@ import argparse
 from datetime import datetime, timezone
 import json
 from pathlib import Path
-import sys
 import time
 from typing import Any, Callable, Literal, Optional
 
-# Ensure repo root is on sys.path
 REPO_ROOT = Path(__file__).resolve().parent.parent
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
 
 import numpy as np
 from pydantic import BaseModel, Field

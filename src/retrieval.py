@@ -3,17 +3,11 @@ import json
 import os
 import pickle
 import re
-import sys
 import time
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal
-
-# Ensure repo root is on sys.path
-REPO_ROOT = Path(__file__).resolve().parent.parent
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
 
 import lancedb
 import numpy as np
