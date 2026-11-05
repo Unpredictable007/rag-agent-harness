@@ -7,19 +7,21 @@ import time
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
+import threading
 from typing import Any, Literal
 
 import lancedb
 import numpy as np
 from pydantic import BaseModel
 from rank_bm25 import BM25Okapi
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import CrossEncoder, SentenceTransformer
 
 from src.config import (
     BM25_INDEX_PATH,
     EMBEDDING_MODEL_NAME,
     LANCEDB_DIR,
     LANCEDB_TABLE_NAME,
+    RERANKER_MODEL_NAME,
     RETRIEVAL_TRACES_PATH,
     RRF_K,
     TRACES_DIR,
@@ -60,11 +62,21 @@ def get_bm25_and_lookup() -> tuple[BM25Okapi, ChunkLookup]:
     return bm25, chunk_lookup
 
 
+_reranker_lock = threading.Lock()
+
+
+@lru_cache(maxsize=1)
+def get_reranker_model() -> CrossEncoder:
+    """Return cached CrossEncoder instance or initialize on first call."""
+    return CrossEncoder(RERANKER_MODEL_NAME)
+
+
 def reset_cache() -> None:
     """Clear all cached model, database, and index instances."""
     get_embedding_model.cache_clear()
     get_lancedb_table.cache_clear()
     get_bm25_and_lookup.cache_clear()
+    get_reranker_model.cache_clear()
 
 
 def reciprocal_rank_fusion(
@@ -90,6 +102,7 @@ def log_retrieval_trace(
     k: int,
     latency_ms: float,
     results: list[RetrievalResult],
+    rerank: bool = False,
     trace_path: Path | None = None,
 ) -> dict[str, Any]:
     """
@@ -102,8 +115,9 @@ def log_retrieval_trace(
     trace_entry: dict[str, Any] = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "query": query,
-        "mode": mode,
+        "mode": f"{mode}_rerank" if rerank else mode,
         "k": k,
+        "rerank": rerank,
         "latency_ms": round(float(latency_ms), 3),
         "top_chunk_ids": [r.chunk_id for r in results],
         "top_scores": [float(r.score) for r in results],
@@ -119,16 +133,21 @@ def retrieve(
     query: str,
     mode: Literal["dense", "bm25", "hybrid"] = "hybrid",
     k: int = 5,
+    rerank: bool = False,
+    candidate_pool_size: int = 50,
     trace: bool = True,
     trace_path: Path | None = None,
 ) -> list[RetrievalResult]:
     """
-    Execute retrieval across dense vector search, BM25 sparse search, or hybrid RRF fusion.
+    Execute retrieval across dense vector search, BM25 sparse search, or hybrid RRF fusion,
+    optionally reranked with a cross-encoder model.
 
     Args:
         query: User search query string.
         mode: Retrieval mode ('dense', 'bm25', 'hybrid'). Defaults to 'hybrid'.
         k: Number of top ranked results to return. Defaults to 5.
+        rerank: Whether to apply CrossEncoder reranking on candidate pool. Defaults to False.
+        candidate_pool_size: Number of initial candidates retrieved for reranking. Defaults to 50.
         trace: Whether to log structured trace to retrieval_traces.jsonl.
         trace_path: Optional override for trace output file path.
 
@@ -143,19 +162,22 @@ def retrieve(
         raise ValueError(f"Invalid retrieval mode: '{mode}'. Must be one of: {valid_modes}")
 
     t_start = time.perf_counter()
-    results: list[RetrievalResult] = []
+    candidates: list[RetrievalResult] = []
+
+    # Stage 1: Candidate retrieval
+    pool_k = max(candidate_pool_size, k) if rerank else k
 
     if mode == "dense":
         model = get_embedding_model()
         table = get_lancedb_table()
 
         query_vec = model.encode(query, normalize_embeddings=True).tolist()
-        rows = table.search(query_vec).metric("cosine").limit(k).to_list()
+        rows = table.search(query_vec).metric("cosine").limit(pool_k).to_list()
 
         for rank, row in enumerate(rows, start=1):
             distance = float(row.get("_distance", 0.0))
             score = 1.0 - distance
-            results.append(
+            candidates.append(
                 RetrievalResult(
                     chunk_id=str(row["chunk_id"]),
                     score=float(score),
@@ -176,11 +198,11 @@ def retrieve(
         else:
             scores = bm25.get_scores(tokens)
 
-        top_indices = np.argsort(scores)[::-1][:k]
+        top_indices = np.argsort(scores)[::-1][:pool_k]
 
         for rank, idx in enumerate(top_indices, start=1):
             chunk = chunk_lookup[int(idx)]
-            results.append(
+            candidates.append(
                 RetrievalResult(
                     chunk_id=chunk.chunk_id,
                     score=float(scores[idx]),
@@ -197,11 +219,11 @@ def retrieve(
         table = get_lancedb_table()
         bm25, chunk_lookup = get_bm25_and_lookup()
 
-        candidate_pool_size = max(50, k)
+        hybrid_pool_size = max(50, candidate_pool_size, k) if rerank else max(50, k)
 
         # 1. Fetch dense candidate pool
         query_vec = model.encode(query, normalize_embeddings=True).tolist()
-        dense_rows = table.search(query_vec).metric("cosine").limit(candidate_pool_size).to_list()
+        dense_rows = table.search(query_vec).metric("cosine").limit(hybrid_pool_size).to_list()
         dense_chunk_ids = [str(r["chunk_id"]) for r in dense_rows]
         dense_map = {str(r["chunk_id"]): r for r in dense_rows}
 
@@ -212,7 +234,7 @@ def retrieve(
         else:
             bm25_scores = bm25.get_scores(tokens)
 
-        top_bm25_indices = np.argsort(bm25_scores)[::-1][:candidate_pool_size]
+        top_bm25_indices = np.argsort(bm25_scores)[::-1][:hybrid_pool_size]
         # Include chunks with positive BM25 scores in sparse candidate list
         bm25_chunk_ids = [
             chunk_lookup[int(idx)].chunk_id
@@ -222,13 +244,14 @@ def retrieve(
 
         # 3. Fuse candidate rankings with Reciprocal Rank Fusion
         fused = reciprocal_rank_fusion([dense_chunk_ids, bm25_chunk_ids], k=RRF_K)
-        top_fused = fused[:k]
+        num_to_take = pool_k if rerank else k
+        top_fused = fused[:num_to_take]
 
         # 4. Construct RetrievalResult objects
         for rank, (chunk_id, fused_score) in enumerate(top_fused, start=1):
             chunk = chunk_lookup.get(chunk_id)
             if chunk is not None:
-                results.append(
+                candidates.append(
                     RetrievalResult(
                         chunk_id=chunk.chunk_id,
                         score=float(fused_score),
@@ -241,7 +264,7 @@ def retrieve(
                 )
             elif chunk_id in dense_map:
                 row = dense_map[chunk_id]
-                results.append(
+                candidates.append(
                     RetrievalResult(
                         chunk_id=str(row["chunk_id"]),
                         score=float(fused_score),
@@ -253,6 +276,36 @@ def retrieve(
                     )
                 )
 
+    # Stage 2: Cross-Encoder Reranking (optional)
+    results: list[RetrievalResult] = []
+    if rerank and candidates:
+        reranker = get_reranker_model()
+        pairs = [(query, cand.text) for cand in candidates]
+        with _reranker_lock:
+            scores = reranker.predict(pairs)
+
+        # Pair candidates with cross-encoder scores and sort descending
+        scored_candidates = sorted(
+            zip(candidates, scores),
+            key=lambda item: float(item[1]),
+            reverse=True,
+        )
+
+        for rank, (cand, ce_score) in enumerate(scored_candidates[:k], start=1):
+            results.append(
+                RetrievalResult(
+                    chunk_id=cand.chunk_id,
+                    score=float(ce_score),
+                    rank=rank,
+                    text=cand.text,
+                    url=cand.url,
+                    heading_path=cand.heading_path,
+                    title=cand.title,
+                )
+            )
+    else:
+        results = candidates[:k]
+
     latency_ms = (time.perf_counter() - t_start) * 1000.0
 
     if trace:
@@ -262,6 +315,7 @@ def retrieve(
             k=k,
             latency_ms=latency_ms,
             results=results,
+            rerank=rerank,
             trace_path=trace_path,
         )
 
@@ -290,10 +344,28 @@ def main() -> None:
         default=5,
         help="Number of top chunks to return (default: 5)",
     )
+    parser.add_argument(
+        "--rerank",
+        action="store_true",
+        default=False,
+        help="Enable cross-encoder reranking over retrieved candidate pool",
+    )
+    parser.add_argument(
+        "--candidate-pool-size",
+        type=int,
+        default=50,
+        help="Candidate pool size for reranking (default: 50)",
+    )
     args = parser.parse_args()
 
-    print(f"Executing retrieval query: '{args.query}' (mode={args.mode}, k={args.k})")
-    results = retrieve(query=args.query, mode=args.mode, k=args.k)
+    print(f"Executing retrieval query: '{args.query}' (mode={args.mode}, k={args.k}, rerank={args.rerank})")
+    results = retrieve(
+        query=args.query,
+        mode=args.mode,
+        k=args.k,
+        rerank=args.rerank,
+        candidate_pool_size=args.candidate_pool_size,
+    )
     print(f"\nRetrieved {len(results)} results:")
     for res in results:
         print(f"\n[Rank {res.rank}] Score: {res.score:.6f}")
