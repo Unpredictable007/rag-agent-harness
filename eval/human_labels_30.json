@@ -1,0 +1,152 @@
+{
+  "gold-001": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Accurately identifies UTC as the default heatmap timezone and explains that timezone changes are configured in project settings with the direct settings URL."
+  },
+  "gold-002": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Fully explains that removing an insight leaves it intact in PostHog, explains the Delete insight everywhere toast option, confirmation dialog, and the editor vs view permission restriction."
+  },
+  "gold-003": {
+    "correctness": 0.5,
+    "faithfulness": 1.0,
+    "notes": "Partially correct: lists 4 of the 5 key recommendations from reference answer (explicit event naming, time ranges, visualization types, iterating with follow-ups), but omits the 5th recommendation (asking questions rather than commands)."
+  },
+  "gold-004": {
+    "correctness": 0.0,
+    "faithfulness": 1.0,
+    "notes": "False abstain on an answerable question about dashboards-bulk-delete tool. Faithfulness is 1.0 because the model safely abstained rather than asserting fictitious claims."
+  },
+  "gold-005": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Correctly states onlyEvaluateLocally controls fallback to server requests, defaults to false, and when true prevents remote calls and returns undefined on failure."
+  },
+  "gold-006": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Correctly explains zero-downtime key rotation via project settings, simultaneous primary and backup key support, and deleting old keys only after rollout."
+  },
+  "gold-007": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Explains deterministic hashing with distinct ID, release condition filter mismatches, property ingestion timing, and identification race conditions."
+  },
+  "gold-008": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Details the OpenFeature provider setup, client initialization, getBooleanValue flag evaluation, and clean shutdown with client.shutdown()."
+  },
+  "gold-009": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Explains pre-launch exposure event validation across variants and emphasizes firing $feature_flag_called when users actually encounter the variant."
+  },
+  "gold-010": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Directly matches both verification requirements: checking event properties in Data Management and querying Data Warehouse directly for matching values."
+  },
+  "gold-011": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Accurately identifies Welch's two-sided t-test for unequal variances, states null hypothesis that conversion rates are equal, and notes default 95% confidence interval."
+  },
+  "gold-012": {
+    "correctness": 0.5,
+    "faithfulness": 1.0,
+    "notes": "Partially correct: details trigger group sampling sample rate controls (0.1 for 10%), but omits configuration details for the minimum recording duration parameter."
+  },
+  "gold-013": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Correctly affirms that PostHog MCP allows searching session replays and managing playlists from AI editors and MCP clients."
+  },
+  "gold-014": {
+    "correctness": 0.0,
+    "faithfulness": 1.0,
+    "notes": "Incorrect: discusses automated GitHub PR workflows and Slack bots instead of answering what actions can be taken on the flagged report itself (view pattern, watch recordings, fix config, redesign, dismiss)."
+  },
+  "gold-015": {
+    "correctness": 0.0,
+    "faithfulness": 1.0,
+    "notes": "False abstain on an answerable question regarding the Frustration signals collection. Faithfulness is 1.0 as no ungrounded claims were asserted."
+  },
+  "gold-016": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Correctly instructs filtering on Is bot ($virt_is_bot) equals false to isolate human traffic without altering raw data, and mentions traffic category filters."
+  },
+  "gold-017": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Enumerates valid escalation triggers (UTMs on pageviews, distinct_id unexpected change, stitching failure) and required ticket diagnostic artifacts."
+  },
+  "gold-018": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Accurately describes all three guided onboarding wizard steps: Welcome, Add source, and Verify and explore."
+  },
+  "gold-037": {
+    "correctness": 0.0,
+    "faithfulness": 1.0,
+    "notes": "False abstain on an answerable multi-chunk question regarding early access feature management limitations. Faithfulness is 1.0 due to safe abstention."
+  },
+  "gold-038": {
+    "correctness": 0.5,
+    "faithfulness": 1.0,
+    "notes": "Partially correct: explains recommended pre-launch staged rollout and running time calculator concepts, but notes that specific override parameter mechanics were not found in retrieved chunks."
+  },
+  "gold-039": {
+    "correctness": 0.5,
+    "faithfulness": 1.0,
+    "notes": "Partially correct: comprehensively covers session replay billing model, volume discounts, and billing limits, but notes that canvas capture SDK version and PII controls were missing from retrieved context."
+  },
+  "gold-040": {
+    "correctness": 0.5,
+    "faithfulness": 1.0,
+    "notes": "Partially correct: accurately explains User Paths visualization structure, horizontal bars, and user transition counts, but states mobile autocapture default behavior could not be confirmed."
+  },
+  "gold-041": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Correctly identifies Web analytics dashboard (app.posthog.com/web), UTM source row click filtering, conversion goal metrics, and drilling into session replays."
+  },
+  "gold-042": {
+    "correctness": 0.5,
+    "faithfulness": 1.0,
+    "notes": "Partially correct: provides exact steps for survey Slack notification setup and toggling partial responses, but notes retrieved docs do not document scout theme clustering."
+  },
+  "gold-049": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Correctly abstained on an unanswerable question regarding native CAN bus telemetry ingestion."
+  },
+  "gold-050": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Correctly abstained on an unanswerable question regarding payroll tax calculation from session time."
+  },
+  "gold-051": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Correctly abstained on an unanswerable question regarding audio pitch analysis and emotion recognition."
+  },
+  "gold-052": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Correctly abstained on an unanswerable question regarding SAP ECC desktop transaction recording."
+  },
+  "gold-053": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Correctly abstained on an unanswerable question regarding IBM mainframe COBOL SDK."
+  },
+  "gold-054": {
+    "correctness": 1.0,
+    "faithfulness": 1.0,
+    "notes": "Correctly abstained on an unanswerable question regarding automated sprint velocity poker estimation."
+  }
+}
