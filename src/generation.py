@@ -201,7 +201,7 @@ def validate_citations(
 def generate_answer(
     query: str,
     retrieved_chunks: list[dict | Any],
-    max_tokens: int = 2048,
+    max_tokens: int = 8192,
     provider: Optional[str] = None,
 ) -> GenerationResult:
     """Generate structured answer with citations and abstain policy enforcement.

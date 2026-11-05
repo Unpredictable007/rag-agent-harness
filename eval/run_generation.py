@@ -81,8 +81,8 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--max-tokens",
         type=int,
-        default=2048,
-        help="Maximum tokens for generation response (default: 2048)",
+        default=8192,
+        help="Maximum tokens for generation response (default: 8192)",
     )
     parser.add_argument(
         "--provider",
@@ -243,7 +243,7 @@ def run_generation_evaluation(
     sample: int | None = None,
     question_id: str | None = None,
     append: bool = False,
-    max_tokens: int = 2048,
+    max_tokens: int = 8192,
     provider: str | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Execute generation evaluation loop over dev set questions."""

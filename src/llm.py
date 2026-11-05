@@ -104,9 +104,12 @@ def _call_anthropic(
     """Execute Anthropic Claude Haiku generation with reasoning effort xhigh."""
     anthropic_client = get_anthropic_client()
     messages = [{"role": "user", "content": prompt}]
+    # With extended thinking (effort xhigh), thinking tokens count against max_tokens.
+    # Provide 8192 max_tokens headroom to ensure complete generation without truncation.
+    anthropic_max_tokens = max(max_tokens, 8192)
     kwargs = {
         "model": ANTHROPIC_HAIKU,
-        "max_tokens": max_tokens,
+        "max_tokens": anthropic_max_tokens,
         "output_config": {"effort": "xhigh"},
         "messages": messages,
     }
