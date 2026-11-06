@@ -1,0 +1,158 @@
+{
+  "tasks": [
+    {
+      "id": "task-01",
+      "question": "Which timezone does the calendar heatmap use by default in PostHog, and where can I change it?",
+      "type": "single_hop",
+      "answerable": true,
+      "gold_urls": [
+        "https://posthog.com/docs/product-analytics/trends/charts"
+      ],
+      "expected_facts": [
+        "UTC",
+        "project settings",
+        "date and time"
+      ]
+    },
+    {
+      "id": "task-02",
+      "question": "If I remove an insight from one of my dashboards, does it get deleted from PostHog entirely, and how can it be deleted permanently?",
+      "type": "single_hop",
+      "answerable": true,
+      "gold_urls": [
+        "https://posthog.com/docs/product-analytics/dashboards"
+      ],
+      "expected_facts": [
+        "does not delete permanently",
+        "Delete insight everywhere"
+      ]
+    },
+    {
+      "id": "task-03",
+      "question": "Which MCP tool deletes multiple dashboards at once in PostHog, and what is the maximum number of dashboards that can be deleted in one request?",
+      "type": "single_hop",
+      "answerable": true,
+      "gold_urls": [
+        "https://posthog.com/docs/product-analytics/surfaces/mcp"
+      ],
+      "expected_facts": [
+        "dashboards-bulk-delete",
+        "100"
+      ]
+    },
+    {
+      "id": "task-04",
+      "question": "When calling evaluateFlags in the PostHog Node SDK, what does the onlyEvaluateLocally option do?",
+      "type": "single_hop",
+      "answerable": true,
+      "gold_urls": [
+        "https://posthog.com/docs/feature-flags/local-evaluation"
+      ],
+      "expected_facts": [
+        "local",
+        "without network request"
+      ]
+    },
+    {
+      "id": "task-05",
+      "question": "How can I rotate the feature flags secure API key in PostHog without causing downtime in production?",
+      "type": "single_hop",
+      "answerable": true,
+      "gold_urls": [
+        "https://posthog.com/docs/feature-flags/project-wide-settings"
+      ],
+      "expected_facts": [
+        ["secondary key", "backup key"],
+        ["delete old key", "delete backup key", "delete"]
+      ]
+    },
+    {
+      "id": "task-06",
+      "question": "Before launching an A/B test in PostHog, what should I verify regarding exposure events, and when does an exposure event fire?",
+      "type": "single_hop",
+      "answerable": true,
+      "gold_urls": [
+        "https://posthog.com/docs/experiments/exposures"
+      ],
+      "expected_facts": [
+        "$feature_flag_called",
+        "exposure"
+      ]
+    },
+    {
+      "id": "task-07",
+      "question": "Which statistical test does PostHog use for frequentist experiment analysis, and does it assume equal variance?",
+      "type": "single_hop",
+      "answerable": true,
+      "gold_urls": [
+        "https://posthog.com/docs/experiments/statistics-frequentist"
+      ],
+      "expected_facts": [
+        "t-test",
+        "Welch"
+      ]
+    },
+    {
+      "id": "task-08",
+      "question": "How can I control the percentage of sessions recorded by PostHog Session Replay to manage volume?",
+      "type": "single_hop",
+      "answerable": true,
+      "gold_urls": [
+        "https://posthog.com/docs/session-replay/how-to-control-which-sessions-you-record"
+      ],
+      "expected_facts": [
+        "sample rate",
+        "sampling"
+      ]
+    },
+    {
+      "id": "task-09",
+      "question": "Can early access feature management be used with group-based targeting in the Python backend, and which SDKs support early access features?",
+      "type": "multi_hop",
+      "answerable": true,
+      "gold_urls": [
+        "https://posthog.com/docs/feature-flags/early-access-feature-management",
+        "https://posthog.com/docs/feature-flags/canary-release"
+      ],
+      "expected_facts": [
+        "JavaScript Web SDK",
+        "Groups",
+        "Python"
+      ]
+    },
+    {
+      "id": "task-10",
+      "question": "Before launching a PostHog experiment, how can you test a specific variant without changing code, and what inputs determine how long the experiment must run?",
+      "type": "multi_hop",
+      "answerable": true,
+      "gold_urls": [
+        "https://posthog.com/docs/experiments/testing-and-launching",
+        "https://posthog.com/docs/experiments/sample-size-running-time"
+      ],
+      "expected_facts": [
+        "override",
+        "sample size"
+      ]
+    },
+    {
+      "id": "task-11",
+      "question": "Does PostHog provide a native telematics protocol adapter to read raw CAN bus frames directly from automotive ECUs?",
+      "type": "unanswerable",
+      "answerable": false,
+      "gold_urls": [],
+      "expected_facts": [
+        "abstain"
+      ]
+    },
+    {
+      "id": "task-12",
+      "question": "Does PostHog offer a native COBOL SDK or z/OS batch library for streaming tracking events from IBM mainframes?",
+      "type": "unanswerable",
+      "answerable": false,
+      "gold_urls": [],
+      "expected_facts": [
+        "abstain"
+      ]
+    }
+  ]
+}
