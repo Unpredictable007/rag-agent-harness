@@ -14,6 +14,8 @@ BM25_INDEX_PATH = DATA_DIR / "bm25_index.pkl"
 RUNS_DIR = REPO_ROOT / "runs"
 TRACES_DIR = RUNS_DIR / "traces"
 RETRIEVAL_TRACES_PATH = TRACES_DIR / "retrieval_traces.jsonl"
+TRANSCRIPTS_DIR = RUNS_DIR / "transcripts"
+DEFAULT_TRANSCRIPTS_PATH = TRANSCRIPTS_DIR / "agent_trials.jsonl"
 
 # Chunking parameters
 CHUNK_MIN_TOKENS = 100
@@ -30,6 +32,7 @@ GEMINI_ARGON = os.getenv("GEMINI_ARGON_MODEL", "gemini-4-argon")
 GEMINI_PRO = os.getenv("GEMINI_PRO_MODEL", "gemini-3.1-pro-preview")
 ANTHROPIC_HAIKU = os.getenv("ANTHROPIC_HAIKU", "claude-haiku-5-5")
 ANTHROPIC_SONNET = os.getenv("ANTHROPIC_SONNET", "claude-sonnet-5-5")
+AGENT_MODEL = os.getenv("AGENT_MODEL", ANTHROPIC_HAIKU)
 EMBEDDING_MODEL_NAME = "BAAI/bge-small-en-v1.5"
 RERANKER_MODEL_NAME = "BAAI/bge-reranker-base"
 
