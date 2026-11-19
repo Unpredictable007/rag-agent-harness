@@ -545,6 +545,14 @@ def main() -> None:
         help="Question to ask the agent (omit or use --interactive for REPL)",
     )
     parser.add_argument(
+        "-q",
+        "--question",
+        dest="question_flag",
+        type=str,
+        default=None,
+        help="Question to ask the agent (optional flag)",
+    )
+    parser.add_argument(
         "-i",
         "--interactive",
         action="store_true",
@@ -571,8 +579,9 @@ def main() -> None:
     args = parser.parse_args()
 
     custom_path = Path(args.transcripts_path) if args.transcripts_path else None
+    question = args.question_flag or args.question
 
-    if args.interactive or args.question is None:
+    if args.interactive or question is None:
         print("=== PostHog ReAct Documentation Agent (Interactive REPL) ===")
         print(f"Model: {args.model or AGENT_MODEL} | Max steps: {args.max_steps}")
         print("Type 'exit' or 'quit' to terminate session.\n")
@@ -604,7 +613,7 @@ def main() -> None:
         return
 
     result = run_agent(
-        task=args.question,
+        task=question,
         model=args.model,
         max_steps=args.max_steps,
         transcripts_path=custom_path,

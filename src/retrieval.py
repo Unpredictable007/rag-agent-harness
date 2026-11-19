@@ -327,15 +327,32 @@ def main() -> None:
     parser.add_argument(
         "query",
         nargs="?",
-        default="How to capture custom events",
-        help="Search query text (default: 'How to capture custom events')",
+        default=None,
+        help="Search query text (positional, default: 'How to capture custom events')",
+    )
+    parser.add_argument(
+        "-q",
+        "--query",
+        dest="query_flag",
+        type=str,
+        default=None,
+        help="Search query text (optional flag)",
     )
     parser.add_argument(
         "mode",
         nargs="?",
-        default="hybrid",
+        default=None,
         choices=["dense", "bm25", "hybrid"],
-        help="Retrieval mode: dense, bm25, or hybrid (default: hybrid)",
+        help="Retrieval mode (positional): dense, bm25, or hybrid (default: hybrid)",
+    )
+    parser.add_argument(
+        "-m",
+        "--mode",
+        dest="mode_flag",
+        type=str,
+        default=None,
+        choices=["dense", "bm25", "hybrid"],
+        help="Retrieval mode (optional flag): dense, bm25, or hybrid (default: hybrid)",
     )
     parser.add_argument(
         "-k",
@@ -358,10 +375,13 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    print(f"Executing retrieval query: '{args.query}' (mode={args.mode}, k={args.k}, rerank={args.rerank})")
+    query = args.query_flag or args.query or "How to capture custom events"
+    mode = args.mode_flag or args.mode or "hybrid"
+
+    print(f"Executing retrieval query: '{query}' (mode={mode}, k={args.k}, rerank={args.rerank})")
     results = retrieve(
-        query=args.query,
-        mode=args.mode,
+        query=query,
+        mode=mode,
         k=args.k,
         rerank=args.rerank,
         candidate_pool_size=args.candidate_pool_size,

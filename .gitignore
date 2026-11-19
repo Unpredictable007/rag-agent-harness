@@ -1,16 +1,60 @@
-.venv/
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
-.env
-.DS_Store
+*.py[cod]
+*$py.class
+*.so
+
+# C extensions & packaging
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+*.egg-info/
+*.egg
+
+# Virtual environments & package managers
+.venv/
+venv/
+env/
+ENV/
+.uv/
+
+# Testing, type checking, and coverage
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Local data stores & benchmark traces (never committed)
 data/posthog_raw/
 data/lancedb/
 data/bm25_index.pkl
 *.pkl
 runs/
+*.log
+
+# Environment variables & secrets (keep .env.example tracked)
+.env
+.env.*
+!.env.example
+
+# IDE configurations
 .idea/
 .vscode/
 *.iml
-*.egg-info/
+*.ipr
+*.iws
+
+# Operating system artifacts
+.DS_Store
+*.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Working reviews and local review caches (D-041)
 eval/.*cache*
 eval/*review*
