@@ -1,0 +1,70 @@
+{
+  "version": "1.0.0",
+  "baseline_id": "production_e3_v1",
+  "config_name": "E3",
+  "description": "Accepted production baseline configuration (E3: Hybrid RRF + Cross-Encoder Reranker) evaluated on dev split",
+  "created_at": "2026-11-05T13:47:22.300258+00:00",
+  "dataset": {
+    "path": "eval/golden_set.json",
+    "split": "dev",
+    "total_queries": 45,
+    "answerable_queries": 36,
+    "unanswerable_queries": 9
+  },
+  "config": {
+    "name": "E3",
+    "label": "Hybrid + Cross-Encoder (E3)",
+    "description": "Hybrid RRF candidate pool (top-50) reranked via bge-reranker-base",
+    "mode": "hybrid",
+    "rerank": true,
+    "k": 5,
+    "candidate_pool_size": 50,
+    "embedding_model": "BAAI/bge-small-en-v1.5",
+    "reranker_model": "BAAI/bge-reranker-base",
+    "dense_vector_db": "LanceDB",
+    "lexical_index": "BM25Okapi"
+  },
+  "metrics": {
+    "recall_at_5": 0.7638888888888888,
+    "hit_at_5": 0.8333333333333334,
+    "mrr": 0.7787037037037038,
+    "retrieval_p50_ms": 606.02,
+    "retrieval_p95_ms": 8023.52,
+    "by_type": {
+      "single-chunk": {
+        "count": 27,
+        "recall_at_5": 0.8518518518518519,
+        "hit_at_5": 0.8518518518518519,
+        "mrr": 0.8086419753086419
+      },
+      "multi-chunk": {
+        "count": 9,
+        "recall_at_5": 0.5,
+        "hit_at_5": 0.7777777777777778,
+        "mrr": 0.6888888888888889
+      },
+      "unanswerable": {
+        "count": 9,
+        "recall_at_5": 0.0,
+        "hit_at_5": 0.0,
+        "mrr": 0.0
+      }
+    },
+    "downstream_informational": {
+      "faithfulness": 1.0,
+      "correctness": 0.8333,
+      "false_abstain_rate": 0.0556,
+      "e2e_p50_s": 4.11,
+      "cost_usd_per_query": 0.00198
+    }
+  },
+  "regression_gate": {
+    "primary_metric": "recall_at_5",
+    "max_allowed_drop": 0.03,
+    "baseline_recall_at_5": 0.7638888888888888,
+    "min_acceptable_recall_at_5": 0.7338888888888888,
+    "baseline_hit_at_5": 0.8333333333333334,
+    "baseline_mrr": 0.7787037037037038,
+    "rationale": "Deterministic retrieval regression gate enforcing recall@5 within 3 percentage points of accepted E3 baseline on dev split (36 answerable queries, where 1 query accounts for ~2.78 pp)."
+  }
+}

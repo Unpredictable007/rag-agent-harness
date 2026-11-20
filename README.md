@@ -180,6 +180,7 @@ rag-agent-harness/
 │   └── llm.py                # Anthropic and Gemini client wrappers with exponential backoff
 ├── eval/
 │   ├── schema.py             # Pydantic schemas for evaluation datasets and benchmarks
+│   ├── baseline.json         # Frozen baseline metrics and regression thresholds for CI gate
 │   ├── golden_set.json       # Curated 45-sample evaluation golden dataset (dev & holdout)
 │   ├── golden_set.hash       # SHA-256 integrity hash of golden dataset
 │   ├── human_labels_30.json  # 30 human-annotated reference labels for judge calibration
@@ -212,7 +213,8 @@ rag-agent-harness/
     ├── test_judge.py
     ├── test_mcp_tool.py
     ├── test_agent.py
-    └── test_agent_eval.py
+    ├── test_agent_eval.py
+    └── test_regression_gate.py# Deterministic retrieval regression gate against baseline
 ```
 
 ---
@@ -329,7 +331,10 @@ python eval/eval_ablation.py
 # 5. Run multi-trial autonomous agent evaluation suite
 python eval/eval_agent.py --trials 3
 
-# 6. Execute all automated unit and integration tests
+# 6. Execute deterministic retrieval regression gate against frozen baseline
+pytest tests/test_regression_gate.py
+
+# 7. Execute all automated unit and integration tests
 pytest
 ```
 
