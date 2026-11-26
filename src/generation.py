@@ -15,6 +15,7 @@ from typing import Any, Optional
 from pydantic import BaseModel, Field
 
 from src.llm import LLMResponse, generate_text
+from src.security import detect_injection_output, sanitize_untrusted_context
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +81,7 @@ class GenerationResult(BaseModel):
 
 
 def format_retrieved_context(retrieved_chunks: list[dict | Any]) -> str:
-    """Format retrieved candidate chunks inside isolated XML tags."""
+    """Format retrieved candidate chunks inside isolated, sanitized XML tags."""
     if not retrieved_chunks:
         return "<retrieved_context>\n</retrieved_context>"
 
@@ -97,12 +98,22 @@ def format_retrieved_context(retrieved_chunks: list[dict | Any]) -> str:
         )
         text = chunk.get("text", "") if isinstance(chunk, dict) else getattr(chunk, "text", "")
 
-        lines.append(f'<chunk id="{chunk_id}">')
-        if title:
-            lines.append(f"<title>{title}</title>")
-        if heading:
-            lines.append(f"<heading>{heading}</heading>")
-        lines.append(f"<content>\n{text}\n</content>")
+        safe_chunk_id = (
+            sanitize_untrusted_context(str(chunk_id))
+            .replace('"', "&quot;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+        )
+        safe_title = sanitize_untrusted_context(str(title)) if title else ""
+        safe_heading = sanitize_untrusted_context(str(heading)) if heading else ""
+        safe_text = sanitize_untrusted_context(str(text))
+
+        lines.append(f'<chunk id="{safe_chunk_id}">')
+        if safe_title:
+            lines.append(f"<title>{safe_title}</title>")
+        if safe_heading:
+            lines.append(f"<heading>{safe_heading}</heading>")
+        lines.append(f"<content>\n{safe_text}\n</content>")
         lines.append("</chunk>")
     lines.append("</retrieved_context>")
     return "\n".join(lines)
@@ -251,6 +262,10 @@ def generate_answer(
         output = parse_generation_output(llm_response.text)
     except Exception as exc:
         logger.warning("Failed to parse LLM generation output as JSON: %s", exc)
+        egress_flags = detect_injection_output(llm_response.text)
+        err_msg = f"JSON parsing error: {exc}"
+        if egress_flags:
+            err_msg = f"{err_msg}; Security violation detected: {', '.join(egress_flags)}"
         return GenerationResult(
             output=None,
             raw_text=llm_response.text,
@@ -261,13 +276,30 @@ def generate_answer(
             valid_citations=[],
             hallucinated_citations=[],
             is_valid=False,
-            error_message=f"JSON parsing error: {exc}",
+            error_message=err_msg,
         )
 
     valid_cites, hallucinated_cites, is_valid, err_msg = validate_citations(
         output,
         retrieved_chunks,
     )
+
+    egress_flags = list(
+        dict.fromkeys(
+            detect_injection_output(output.answer) + detect_injection_output(llm_response.text)
+        )
+    )
+    if egress_flags:
+        is_valid = False
+        sec_msg = f"Security violation detected: {', '.join(egress_flags)}"
+        err_msg = f"{err_msg}; {sec_msg}" if err_msg else sec_msg
+        output = GenerationOutput(
+            answer=ABSTAIN_ANSWER,
+            citations=[],
+            abstain=True,
+        )
+        valid_cites = []
+        hallucinated_cites = []
 
     return GenerationResult(
         output=output,
